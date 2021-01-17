@@ -7,6 +7,11 @@ let bg_elements = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lasJumpStarted = 0;
+let currentCharacterImage = 'img/charakter_1.png';
+let characterGraphicsRight = ['img/charakter_1.png', 'img/charakter_2.png', 'img/charakter_3.png', 'img/charakter_4.png'];
+let characterGraphicsLeft = ['img/charakter_left_1.png', 'img/charakter_left_2.png', 'img/charakter_left_3.png', 'img/charakter_left_4.png'];
+let characterGraphicIndex = 0;
+let cloudOffset = 0;
 
 // -------------------------Game config-------------------------
 
@@ -16,14 +21,41 @@ let GAME_SPEED = 7;
 function init() {
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext("2d");
-
+  checkForRunning();
   draw();
-
+  calculateCloudOffset();
   listenForKeys();
+}
+
+function calculateCloudOffset() {
+  setInterval(function () {
+    cloudOffset = cloudOffset + 0.25;
+  }, 50);
+}
+
+function checkForRunning() {
+  setInterval(function () {
+
+    if (isMovingRight) {
+      let index = characterGraphicIndex % characterGraphicsRight.length;
+      currentCharacterImage = characterGraphicsRight[index];
+      characterGraphicIndex = characterGraphicIndex + 1;
+    }
+
+    if (isMovingLeft) {
+      let index = characterGraphicIndex % characterGraphicsLeft.length;
+      currentCharacterImage = characterGraphicsLeft[index];
+      characterGraphicIndex = characterGraphicIndex + 1;
+    }
+
+    //isMovingLeft
+
+  }, 100);
 
 }
 
 function draw() {
+  drawChicken();
   drawBackground();
   updateCharacter();
   requestAnimationFrame(draw);
@@ -31,17 +63,17 @@ function draw() {
 
 function updateCharacter() {
   let base_image = new Image();
-  base_image.src = 'img/charakter_1.png';
+  base_image.src = currentCharacterImage;
 
   let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
   if (timePassedSinceJump < JUMP_TIME) {
-    // character_y = character_y - 10;
+    character_y = character_y - 10;
   } else {
 
     //check falling 
 
     if (character_y < 250) {
-      // character_y = character_y + 10;
+      character_y = character_y + 10;
     }
   }
 
@@ -51,10 +83,18 @@ function updateCharacter() {
 }
 
 function drawBackground() {
+
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   drawGround()
+
+  //Draw clouds
+  addBackgroundobject('img/cloud1.png', 100 - cloudOffset, 20, 0.8, 1);
+  addBackgroundobject('img/cloud2.png', 500 - cloudOffset, 20, 0.6, 1);
+  addBackgroundobject('img/cloud1.png', 800 - cloudOffset, 20, 1, 1);
+  addBackgroundobject('img/cloud2.png', 1300 - cloudOffset, 20, 0.6, 1);
+
 }
 
 
@@ -81,6 +121,10 @@ function drawGround() {
   // Draw ground
   ctx.fillStyle = "#FFE699";
   ctx.fillRect(0, 375, canvas.width, canvas.height - 375);
+
+  for (let index = 0; index < 10; index++) {
+    addBackgroundobject('img/sand.png', index * canvas.width, 375, 0.36, 0.3);
+  }
 
 }
 
