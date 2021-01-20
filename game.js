@@ -35,16 +35,22 @@ let AUDIO_THROW = new Audio('audio/throw.mp3');
 let AUDIO_GLASS = new Audio('audio/glass.mp3');
 let AUDIO_FINAL_BOSS = new Audio('audio/final_boss.mp3');
 let AUDIO_WIN = new Audio('audio/win.mp3');
-let AUDIO_BACKGROUND_MUSIC = new Audio('audio/Crowander - Bye Bye.mp3');
+let AUDIO_BACKGROUND_MUSIC = new Audio('audio/music.mp3');
 AUDIO_BACKGROUND_MUSIC.loop = true;
 AUDIO_BACKGROUND_MUSIC.volume = 0.2;
 
 function init() {
+  preloadImages();
   canvas = document.getElementById('canvas');
   ctx = canvas.getContext("2d");
+  draw();
+}
+
+function loadGame() {
+  document.getElementById('start-button').classList.add('d-none');
+  AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
   checkForRunning();
-  draw();
   calculateCloudOffset();
   listenForKeys();
   calculateChickenPosition();
@@ -147,7 +153,7 @@ function checkForRunning() {
 
     if (isMovingRight) {
       AUDIO_RUNNING.play();
-      let index = characterGraphicIndex % characterGraphicsRight.length; //schleife, die sich undendlich wiederholt
+      let index = characterGraphicIndex % characterGraphicsRight.length; //Schleife, die sich undendlich wiederholt
       currentCharacterImage = characterGraphicsRight[index];
       characterGraphicIndex = characterGraphicIndex + 1;
     }
@@ -221,20 +227,26 @@ function drawThrowBottle() {
   thrownBottle_x = 125 + (timePassed * 0.7);
   thrownBottel_y = 300 - (timePassed * 0.6 - gravity);
 
-  let base_image = new Image();
-  base_image.src = 'img/tabasco.png';
-  if (base_image.complete) {
-    ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.5, base_image.height * 0.5);
-  }
+  let base_image = checkBackgroundImageCache('img/tabasco.png');
+  ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.5, base_image.height * 0.5);
+
+  // let base_image = new Image();
+  // base_image.src = 'img/tabasco.png';
+  // if (base_image.complete) {
+  //   ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.5, base_image.height * 0.5);
+  // }
 }
 
 function drawInformation() {
 
-  let base_image = new Image();
-  base_image.src = 'img/tabasco.png';
-  if (base_image.complete) {
-    ctx.drawImage(base_image, 0, 5, base_image.width * 0.5, base_image.height * 0.5);
-  }
+  let base_image = checkBackgroundImageCache('img/tabasco.png');
+  ctx.drawImage(base_image, 0, 5, base_image.width * 0.5, base_image.height * 0.5);
+
+  // let base_image = new Image();
+  // base_image.src = 'img/tabasco.png';
+  // if (base_image.complete) {
+  //   ctx.drawImage(base_image, 0, 5, base_image.width * 0.5, base_image.height * 0.5);
+  // }
   ctx.globalAlpha = 1;
 
   ctx.font = '30px Bradley Hand ITC';
@@ -279,8 +291,10 @@ function createChicken(type, position_x) {
 }
 
 function updateCharacter() {
-  let base_image = new Image();
-  base_image.src = currentCharacterImage;
+  
+  let base_image = checkBackgroundImageCache(currentCharacterImage);
+  // let base_image = new Image();
+  // base_image.src = currentCharacterImage;
 
   let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
   if (timePassedSinceJump < JUMP_TIME) {
@@ -294,9 +308,11 @@ function updateCharacter() {
     }
   }
 
-  if (base_image.complete) {
-    ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.35, base_image.height * 0.35);
-  };
+  ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.35, base_image.height * 0.35);
+
+  // if (base_image.complete) {
+  //   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.35, base_image.height * 0.35);
+  // };
 }
 
 function drawBackground() {
@@ -372,11 +388,16 @@ function addBackgroundobject(src, offsetX, offsetY, scale, opacity) {
   if (opacity != undefined) {
     ctx.globalAlpha = opacity;
   }
-  let base_image = new Image();
-  base_image.src = src;
-  if (base_image.complete) {
-    ctx.drawImage(base_image, offsetX + bg_elements, offsetY, base_image.width * scale, base_image.height * scale);
-  }
+
+  let base_image = checkBackgroundImageCache(src);
+  
+  ctx.drawImage(base_image, offsetX + bg_elements, offsetY, base_image.width * scale, base_image.height * scale);
+
+  // let base_image = new Image();
+  // base_image.src = src;
+  // if (base_image.complete) {
+  //   ctx.drawImage(base_image, offsetX + bg_elements, offsetY, base_image.width * scale, base_image.height * scale);
+  // }
   ctx.globalAlpha = 1;
 }
 
