@@ -1,16 +1,20 @@
 let canvas;
 let ctx;
 let character_x = 100;
-let character_y = 250;
+let character_y = 150;
 let character_energy = 100;
 let final_boss_energy = 100;
-let bg_elements = 0;
+let bg_ground = 0;
+let bg_sky = 0;
+let bg_hills = 0;
+let bg_shadows = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
 let lasJumpStarted = 0;
-let currentCharacterImage = 'img/charakter_1.png';
-let characterGraphicsRight = ['img/charakter_1.png', 'img/charakter_2.png', 'img/charakter_3.png', 'img/charakter_4.png'];
-let characterGraphicsLeft = ['img/charakter_left_1.png', 'img/charakter_left_2.png', 'img/charakter_left_3.png', 'img/charakter_left_4.png'];
+let currentCharacterImage = './img/pepe/I-1.png';
+let currentCharacterImageLeft = './img/pepe/IL-1.png';
+let characterGraphicsRight = ['./img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png'];
+let characterGraphicsLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png'];
 let characterGraphicIndex = 0;
 let cloudOffset = 0;
 let chickens = [];
@@ -48,7 +52,7 @@ function init() {
 
 function loadGame() {
   document.getElementById('start-button').classList.add('d-none');
-  AUDIO_BACKGROUND_MUSIC.play();
+  // AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
   checkForRunning();
   calculateCloudOffset();
@@ -63,10 +67,10 @@ function checkForCollision() {
     //Check chicken
     for (let index = 0; index < chickens.length; index++) {
       let chicken = chickens[index];
-      let chicken_x = chicken.position_x + bg_elements;
+      let chicken_x = chicken.position_x + bg_ground;
 
       if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x) {
-        if (character_y > 210) {
+        if (character_y > 110) {
           if (character_energy > 0) {
             character_energy -= 10;
           } else {
@@ -79,23 +83,23 @@ function checkForCollision() {
 
     //Check bottle
     for (let index = 0; index < placedBottles.length; index++) {
-      let bottle_x = placedBottles[index] + bg_elements;
+      let bottle_x = placedBottles[index] + bg_ground;
 
       if ((bottle_x - 40) < character_x && (bottle_x + 40) > character_x) {
-        if (character_y > 210) {
+        if (character_y > 110) {
           placedBottles.splice(index, 1);
-          AUDIO_BOTTLE.play();
+          // AUDIO_BOTTLE.play();
           collectedBottles++;
         }
       }
     }
 
     //Check final boss 
-    if (thrownBottle_x > BOSS_POSITION + bg_elements - 100 && thrownBottle_x < BOSS_POSITION + bg_elements + 100) {
+    if (thrownBottle_x > BOSS_POSITION + bg_ground - 100 && thrownBottle_x < BOSS_POSITION + bg_ground + 100) {
 
       if (final_boss_energy > 0) {
         final_boss_energy = final_boss_energy - 10;
-        AUDIO_GLASS.play();
+        // AUDIO_GLASS.play();
       } else if (bossDefeatedAt == 0) {
         bossDefeatedAt = new Date().getTime();
         AUDIO_FINAL_BOSS.play();
@@ -134,10 +138,10 @@ function createChickenList() {
     createChicken(2, 1400),
     createChicken(1, 1800),
     createChicken(1, 2500),
-    createChicken(1, 3000),
+    createChicken(2, 3000),
     createChicken(2, 3300),
     createChicken(1, 3800),
-    createChicken(2, 4200),
+    createChicken(1, 4200),
     createChicken(2, 4500),
   ];
 }
@@ -152,14 +156,14 @@ function checkForRunning() {
   setInterval(function () {
 
     if (isMovingRight) {
-      AUDIO_RUNNING.play();
+      // AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsRight.length; //Schleife, die sich undendlich wiederholt
       currentCharacterImage = characterGraphicsRight[index];
       characterGraphicIndex = characterGraphicIndex + 1;
     }
 
     if (isMovingLeft) {
-      AUDIO_RUNNING.play();
+      // AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsLeft.length;
       currentCharacterImage = characterGraphicsLeft[index];
       characterGraphicIndex = characterGraphicIndex + 1;
@@ -210,14 +214,14 @@ function drawFinalBoss() {
     chicken_y = chicken_y - timePassed * 0.3;
   }
 
-  addBackgroundobject(bossImage, chicken_x, chicken_y, 0.45, 1);
+  addBackgroundobject(bossImage, chicken_x, bg_ground, chicken_y, 0.45, 1);
 
   ctx.globalAlpha = 0.5;
   ctx.fillStyle = "red";
-  ctx.fillRect(BOSS_POSITION - 30 + bg_elements, 75, 2 * final_boss_energy, 10);
+  ctx.fillRect(BOSS_POSITION - 30 + bg_ground, 75, 2 * final_boss_energy, 10);
   ctx.globalAlpha = 0.2;
   ctx.fillStyle = "black";
-  ctx.fillRect(BOSS_POSITION - 35 + bg_elements, 70, 210, 20);
+  ctx.fillRect(BOSS_POSITION - 35 + bg_ground, 70, 210, 20);
   ctx.globalAlpha = 1;
 }
 
@@ -227,26 +231,15 @@ function drawThrowBottle() {
   thrownBottle_x = 125 + (timePassed * 0.7);
   thrownBottel_y = 300 - (timePassed * 0.6 - gravity);
 
-  let base_image = checkBackgroundImageCache('img/tabasco.png');
-  ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.5, base_image.height * 0.5);
+  let base_image = checkBackgroundImageCache('./img/bottle/bottle1.png');
+  ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.25, base_image.height * 0.25);
 
-  // let base_image = new Image();
-  // base_image.src = 'img/tabasco.png';
-  // if (base_image.complete) {
-  //   ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.5, base_image.height * 0.5);
-  // }
 }
 
 function drawInformation() {
 
-  let base_image = checkBackgroundImageCache('img/tabasco.png');
-  ctx.drawImage(base_image, 0, 5, base_image.width * 0.5, base_image.height * 0.5);
-
-  // let base_image = new Image();
-  // base_image.src = 'img/tabasco.png';
-  // if (base_image.complete) {
-  //   ctx.drawImage(base_image, 0, 5, base_image.width * 0.5, base_image.height * 0.5);
-  // }
+  let base_image = checkBackgroundImageCache('./img/bottle/bottle.png');
+  ctx.drawImage(base_image, 0, 5, base_image.width * 0.2, base_image.height * 0.2);
   ctx.globalAlpha = 1;
 
   ctx.font = '30px Bradley Hand ITC';
@@ -256,7 +249,7 @@ function drawInformation() {
 function drawBottles() {
   for (let index = 0; index < placedBottles.length; index++) {
     let bottle_x = placedBottles[index];
-    addBackgroundobject('img/tabasco.png', bottle_x, 318, 0.7, 1);
+    addBackgroundobject('./img/bottle/bottle1.png', bottle_x, bg_ground, 318, 0.2, 1);
   }
 }
 
@@ -275,26 +268,24 @@ function drawChicken() {
   for (let index = 0; index < chickens.length; index++) {
     let chicken = chickens[index];
 
-    addBackgroundobject(chicken.img, chicken.position_x, chicken.position_y, chicken.scale, 1);
+    addBackgroundobject(chicken.img, chicken.position_x, bg_ground, chicken.position_y, chicken.scale, 1);
   }
 
 }
 
 function createChicken(type, position_x) {
   return {
-    'img': 'img/chicken' + type + '.png',
+    'img': './img/chicken/chicken' + type + '.png',
     'position_x': position_x,
     'position_y': 325,
-    'scale': 0.6,
+    'scale': 0.28,
     'speed': (Math.random() * 5)
   };
 }
 
 function updateCharacter() {
-  
+
   let base_image = checkBackgroundImageCache(currentCharacterImage);
-  // let base_image = new Image();
-  // base_image.src = currentCharacterImage;
 
   let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
   if (timePassedSinceJump < JUMP_TIME) {
@@ -303,16 +294,13 @@ function updateCharacter() {
 
     //check falling 
 
-    if (character_y < 250) {
+    if (character_y < 150) {
       character_y = character_y + 10;
     }
   }
 
-  ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.35, base_image.height * 0.35);
+  ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.2, base_image.height * 0.2);
 
-  // if (base_image.complete) {
-  //   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.35, base_image.height * 0.35);
-  // };
 }
 
 function drawBackground() {
@@ -320,84 +308,91 @@ function drawBackground() {
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  drawGround()
+  drawSky();
+  drawHills();
+  drawShadows();
+  drawGround();
 
   //Draw clouds
-  addBackgroundobject('img/cloud1.png', 100 - cloudOffset, 20, 0.8, 1);
-  addBackgroundobject('img/cloud2.png', 500 - cloudOffset, 20, 0.6, 1);
-  addBackgroundobject('img/cloud1.png', 800 - cloudOffset, 20, 1, 1);
-  addBackgroundobject('img/cloud2.png', 1300 - cloudOffset, 20, 0.6, 1);
-  addBackgroundobject('img/cloud1.png', 1800 - cloudOffset, 20, 1, 1);
-  addBackgroundobject('img/cloud2.png', 2300 - cloudOffset, 20, 0.6, 1);
-  addBackgroundobject('img/cloud1.png', 2800 - cloudOffset, 20, 1, 1);
-  addBackgroundobject('img/cloud2.png', 3500 - cloudOffset, 20, 0.6, 1);
-  addBackgroundobject('img/cloud1.png', 3800 - cloudOffset, 20, 1, 1);
-  addBackgroundobject('img/cloud2.png', 4500 - cloudOffset, 20, 0.6, 1);
-  addBackgroundobject('img/cloud1.png', 4800 - cloudOffset, 20, 1, 1);
-  addBackgroundobject('img/cloud2.png', 5500 - cloudOffset, 20, 0.6, 1);
+
+  for (let index = -2; index < 10; index++) {
+    addBackgroundobject('img/background/clouds.png', (index * 1920) - cloudOffset, bg_ground, -50, 0.5, 0.5);
+  }
+}
+
+
+function drawSky() {
+  if (isMovingRight) {
+    bg_sky = bg_sky - GAME_SPEED;
+  }
+
+  if (isMovingLeft && bg_ground < 500) {
+    bg_ground = bg_ground + GAME_SPEED;
+  }
+  for (let index = -2; index < 20; index++) {
+    addBackgroundobject('./img/background/sky.png', index * 955, bg_ground, -80, 0.5);
+  }
 
 }
 
+function drawHills() {
+
+  if (isMovingRight) {
+    bg_hills = bg_hills - (0.25 * GAME_SPEED);
+  }
+
+  if (isMovingLeft && bg_ground < 500) {
+    bg_hills = bg_hills + (0.25 * GAME_SPEED);
+  }
+
+  for (let index = -2; index < 10; index++) {
+    addBackgroundobject('./img/background/ground3.png', index * 1920, bg_hills, -80, 0.5);
+  }
+
+}
+
+function drawShadows() {
+
+  if (isMovingRight) {
+    bg_shadows = bg_shadows - (0.5 * GAME_SPEED);
+  }
+
+  if (isMovingLeft && bg_ground < 500) {
+    bg_shadows = bg_shadows + (0.5 * GAME_SPEED);
+  }
+
+  for (let index = -2; index < 10; index++) {
+    addBackgroundobject('./img/background/ground2.png', index * 1920, bg_shadows, -80, 0.5);
+  }
+
+}
 
 function drawGround() {
 
   if (isMovingRight) {
-    bg_elements = bg_elements - GAME_SPEED;
+    bg_ground = bg_ground - GAME_SPEED;
   }
 
-  if (isMovingLeft && bg_elements < 500) {
-    bg_elements = bg_elements + GAME_SPEED;
+  if (isMovingLeft && bg_ground < 500) {
+    bg_ground = bg_ground + GAME_SPEED;
   }
-
-  addBackgroundobject('img/bg_elem_1.png', 0, 195, 0.6, 0.4);
-  addBackgroundobject('img/bg_elem_2.png', 450, 120, 0.6, 0.5);
-  addBackgroundobject('img/bg_elem_1.png', 700, 255, 0.4, 0.6);
-  addBackgroundobject('img/bg_elem_2.png', 1150, 260, 0.3, 0.2);
-
-  addBackgroundobject('img/bg_elem_1.png', 1300, 195, 0.6, 0.4);
-  addBackgroundobject('img/bg_elem_2.png', 1450, 120, 0.6, 0.5);
-  addBackgroundobject('img/bg_elem_1.png', 1700, 255, 0.4, 0.6);
-  addBackgroundobject('img/bg_elem_2.png', 2000, 260, 0.3, 0.2);
-
-  addBackgroundobject('img/bg_elem_1.png', 2300, 195, 0.6, 0.4);
-  addBackgroundobject('img/bg_elem_2.png', 2450, 120, 0.6, 0.5);
-  addBackgroundobject('img/bg_elem_1.png', 2700, 255, 0.4, 0.6);
-  addBackgroundobject('img/bg_elem_2.png', 3000, 260, 0.3, 0.2);
-
-  addBackgroundobject('img/bg_elem_1.png', 3300, 195, 0.6, 0.4);
-  addBackgroundobject('img/bg_elem_2.png', 3450, 120, 0.6, 0.5);
-  addBackgroundobject('img/bg_elem_1.png', 3700, 255, 0.4, 0.6);
-  addBackgroundobject('img/bg_elem_2.png', 4000, 260, 0.3, 0.2);
-
-  addBackgroundobject('img/bg_elem_1.png', 4300, 195, 0.6, 0.4);
-  addBackgroundobject('img/bg_elem_2.png', 4450, 120, 0.6, 0.5);
-  addBackgroundobject('img/bg_elem_1.png', 4700, 255, 0.4, 0.6);
-  addBackgroundobject('img/bg_elem_2.png', 5000, 260, 0.3, 0.2);
 
   // Draw ground
-  ctx.fillStyle = "#FFE699";
-  ctx.fillRect(0, 375, canvas.width, canvas.height - 375);
 
-  for (let index = 0; index < 10; index++) {
-    addBackgroundobject('img/sand.png', index * canvas.width - 600, 375, 0.36, 0.3);
+  for (let index = -2; index < 10; index++) {
+    addBackgroundobject('./img/background/ground1.png', index * 1920, bg_ground, -90, 0.5);
   }
+
 
 }
 
-function addBackgroundobject(src, offsetX, offsetY, scale, opacity) {
+function addBackgroundobject(src, offsetX, bg_elements, offsetY, scale, opacity) {
   if (opacity != undefined) {
     ctx.globalAlpha = opacity;
   }
 
   let base_image = checkBackgroundImageCache(src);
-  
   ctx.drawImage(base_image, offsetX + bg_elements, offsetY, base_image.width * scale, base_image.height * scale);
-
-  // let base_image = new Image();
-  // base_image.src = src;
-  // if (base_image.complete) {
-  //   ctx.drawImage(base_image, offsetX + bg_elements, offsetY, base_image.width * scale, base_image.height * scale);
-  // }
   ctx.globalAlpha = 1;
 }
 
@@ -429,7 +424,7 @@ function listenForKeys() {
     let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
 
     if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2) {
-      AUDIO_JUMP.play();
+      // AUDIO_JUMP.play();
       lasJumpStarted = new Date().getTime();
     }
 
@@ -450,4 +445,3 @@ function listenForKeys() {
   });
 
 }
-

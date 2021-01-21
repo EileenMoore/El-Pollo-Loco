@@ -1,9 +1,11 @@
-let imagePaths = ['img/charakter_1.png', 'img/charakter_2.png', 'img/charakter_3.png', 'img/charakter_4.png',
-    'img/charakter_left_1.png', 'img/charakter_left_2.png', 'img/charakter_left_3.png', 'img/charakter_left_4.png',
-    'img/chicken1.png', 'img/chicken2.png',
+let imagePaths = ['./img/pepe/I-1.png', './img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png',
+'./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png',
+'./img/chicken/chicken1.png', './img/chicken/chicken2.png',
     'img/cloud1.png', 'img/cloud2.png',
     'img/bg_elem_1.png', 'img/bg_elem_2.png',
-    'img/sand.png', 'img/tabasco.png',
+    './img/background/sky.png', './img/background/clouds.png',  
+    './img/background/ground1.png', './img/background/ground2.png', './img/background/ground3.png', 
+    './img/bottle/bottle1.png', './img/bottle/bottle1.png',
     'img/chicken_big.png', 'img/chicken_dead.png'];
 
 let images = [];
