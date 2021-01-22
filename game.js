@@ -10,21 +10,25 @@ let bg_hills = 0;
 let bg_shadows = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
+let isJumping = false;
 let lasJumpStarted = 0;
+let isFacingRight = true;
+let isFacingLeft = false;
 let currentCharacterImage = './img/pepe/I-1.png';
-let currentCharacterImageLeft = './img/pepe/IL-1.png';
 let characterGraphicsRight = ['./img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png'];
 let characterGraphicsLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png'];
+let characterGraphicsJumpRight = ['./img/pepe/J-32.png', './img/pepe/J-33.png', './img/pepe/J-34.png', './img/pepe/J-35.png', './img/pepe/J-36.png', './img/pepe/J-37.png', './img/pepe/J-38.png'];
+let characterGraphicsJumpLeft = ['./img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-36.png', './img/pepe/JL-37.png', './img/pepe/JL-38.png'];
 let characterGraphicIndex = 0;
 let cloudOffset = 0;
 let chickens = [];
 let chickenGraphics = ['./img/chicken/chicken1.png', './img/chicken/chicken2.png', './img/chicken/chicken3.png'];
 let chickenGraphicIndex = 0;
-let currentChickenImage = ['./img/chicken/chicken1.png'];
+let currentChickenImage = './img/chicken/chicken1.png';
 let hens = [];
 let hensGraphics = ['./img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png'];
 let hensGraphicIndex = 0;
-let currentHenImage = ['./img/chicken/hen1.png'];
+let currentHenImage = './img/chicken/hen1.png';
 let placedBottles = [500, 1000, 1700, 2500, 2800, 3300];
 let collectedBottles = 0;
 let bottleThrowTime = 0;
@@ -60,10 +64,11 @@ function init() {
 
 function loadGame() {
   document.getElementById('start-button').classList.add('d-none');
-  // AUDIO_BACKGROUND_MUSIC.play();
+  AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
   createHenList();
   checkForRunning();
+  checkForJump();
   checkForChicken();
   checkForHens();
   calculateCloudOffset();
@@ -80,6 +85,17 @@ function checkForCollision() {
     for (let index = 0; index < hens.length; index++) {
       let hen = hens[index];
       let hen_x = hen.position_x + bg_ground;
+
+      if ((hen_x - 40) < character_x && (hen_x + 40) > character_x) {
+        if (character_y > 110) {
+          if (character_energy > 0) {
+            character_energy -= 10;
+          } else {
+            character_lost_at = new Date().getTime();
+            game_finished = true;
+          }
+        }
+      }
 
       if ((hen_x - 400) < character_x && (hen_x + 400) > character_x) {
         AUDIO_HEN.play();
@@ -110,7 +126,7 @@ function checkForCollision() {
       if ((bottle_x - 40) < character_x && (bottle_x + 40) > character_x) {
         if (character_y > 110) {
           placedBottles.splice(index, 1);
-          // AUDIO_BOTTLE.play();
+          AUDIO_BOTTLE.play();
           collectedBottles++;
         }
       }
@@ -121,7 +137,7 @@ function checkForCollision() {
 
       if (final_boss_energy > 0) {
         final_boss_energy = final_boss_energy - 10;
-        // AUDIO_GLASS.play();
+        AUDIO_GLASS.play();
       } else if (bossDefeatedAt == 0) {
         bossDefeatedAt = new Date().getTime();
         AUDIO_FINAL_BOSS.play();
@@ -195,6 +211,8 @@ function checkForRunning() {
   setInterval(function () {
 
     if (isMovingRight) {
+      isFacingRight = true;
+      isFacingLeft = false;
       AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsRight.length; //Schleife, die sich undendlich wiederholt
       currentCharacterImage = characterGraphicsRight[index];
@@ -202,17 +220,60 @@ function checkForRunning() {
     }
 
     if (isMovingLeft) {
+      isFacingRight = false;
+      isFacingLeft = true;
       AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsLeft.length;
       currentCharacterImage = characterGraphicsLeft[index];
       characterGraphicIndex = characterGraphicIndex + 1;
     }
 
-    if (!isMovingRight && !isMovingLeft)
+    if (!isMovingRight && !isMovingLeft) {
       AUDIO_RUNNING.pause();
+    }
 
   }, 100);
 }
+
+function checkForJump() {
+
+  setInterval(function () {
+
+    let index;
+    let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
+
+      //Jump right
+
+    if (isJumping && isFacingRight) {
+      if (timePassedSinceJump < 2 * JUMP_TIME) {
+        index = characterGraphicIndex % characterGraphicsJumpRight.length;
+      } else {
+        index = 0;
+        characterGraphicIndex = 0;
+      }
+      currentCharacterImage = characterGraphicsJumpRight[index];
+      characterGraphicIndex = characterGraphicIndex + 1;
+      console.log(currentCharacterImage);
+    }
+
+    //Jump left 
+
+    if (isJumping && isFacingLeft) {
+      if (timePassedSinceJump < 2 * JUMP_TIME) {
+        index = characterGraphicIndex % characterGraphicsJumpLeft.length;
+      } else {
+        index = 0;
+        characterGraphicIndex = 0;
+      }
+      currentCharacterImage = characterGraphicsJumpLeft[index];
+      characterGraphicIndex = characterGraphicIndex + 1;
+      console.log(currentCharacterImage);
+    }
+
+
+  }, 100);
+}
+
 
 function draw() {
   drawBackground();
@@ -308,7 +369,7 @@ function drawChicken() {
 
   for (let i = 0; i < chickens.length; i++) {
     let chicken = chickens[i];
-    addBackgroundobject(currentChickenImage.toString(), chicken.position_x, bg_ground, chicken.position_y, chicken.scale, 1);
+    addBackgroundobject(currentChickenImage, chicken.position_x, bg_ground, chicken.position_y, chicken.scale, 1);
   }
 
 }
@@ -317,7 +378,7 @@ function drawHen() {
 
   for (let i = 0; i < hens.length; i++) {
     let hen = hens[i];
-    addBackgroundobject(currentHenImage.toString(), hen.position_x, bg_ground, hen.position_y, hen.scale, 1);
+    addBackgroundobject(currentHenImage, hen.position_x, bg_ground, hen.position_y, hen.scale, 1);
   }
 
 }
@@ -345,7 +406,7 @@ function createChicken(position_x) {
     'position_x': position_x,
     'position_y': 325,
     'scale': 0.28,
-    'speed': (Math.random() * 5)
+    'speed': (Math.random() * 6) + 1
   };
 }
 
@@ -412,7 +473,7 @@ function drawHills() {
   }
 
   for (let index = -2; index < 10; index++) {
-    addBackgroundobject('./img/background/ground3.png', index * 1920, bg_hills, -80, 0.5);
+    addBackgroundobject('./img/background/ground3.png', index * 1920, bg_hills, -140, 0.5);
   }
 
 }
@@ -428,7 +489,7 @@ function drawShadows() {
   }
 
   for (let index = -2; index < 10; index++) {
-    addBackgroundobject('./img/background/ground2.png', index * 1920, bg_shadows, -80, 0.5);
+    addBackgroundobject('./img/background/ground2.png', index * 1920, bg_shadows, -110, 0.5);
   }
 
 }
@@ -490,8 +551,13 @@ function listenForKeys() {
     let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
 
     if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2) {
-      // AUDIO_JUMP.play();
+      isJumping = true;
+      AUDIO_JUMP.play();
       lasJumpStarted = new Date().getTime();
+
+      setTimeout(function () {
+        isJumping = false;
+      }, 700);
     }
 
   });
@@ -507,7 +573,5 @@ function listenForKeys() {
       // character_x = character_x - 5;
       isMovingLeft = false;
     }
-
   });
-
 }
