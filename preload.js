@@ -1,6 +1,6 @@
 let imagePaths = ['./img/pepe/I-1.png', './img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png',
 './img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png',
-'./img/chicken/chicken1.png', './img/chicken/chicken2.png',
+'./img/chicken/chicken1.png', './img/chicken/chicken2.png', './img/chicken/chicken3.png',
     'img/cloud1.png', 'img/cloud2.png',
     'img/bg_elem_1.png', 'img/bg_elem_2.png',
     './img/background/sky.png', './img/background/clouds.png',  
@@ -32,8 +32,10 @@ function checkBackgroundImageCache(src_path) {
 
     // Check if image is found in images-array.
 
+
     let base_image = images.find(function (img) {
-        return img.src.endsWith(src_path.substring(src_path, src_path.length));
+
+        return img.src.endsWith(src_path.substring(0,src_path.length)); 
     });
 
     // Create new image if not found in cache

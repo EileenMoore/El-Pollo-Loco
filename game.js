@@ -18,6 +18,10 @@ let characterGraphicsLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './
 let characterGraphicIndex = 0;
 let cloudOffset = 0;
 let chickens = [];
+let chickenGraphics = ['./img/chicken/chicken1.png', './img/chicken/chicken2.png', './img/chicken/chicken3.png'];
+let chickenGraphicIndex = 0;
+let currentChickenImage = ['./img/chicken/chicken1.png'];
+let hensImages = ['./img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png'];
 let placedBottles = [500, 1000, 1700, 2500, 2800, 3300];
 let collectedBottles = 0;
 let bottleThrowTime = 0;
@@ -55,6 +59,7 @@ function loadGame() {
   // AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
   checkForRunning();
+  checkForChicken();
   calculateCloudOffset();
   listenForKeys();
   calculateChickenPosition();
@@ -134,15 +139,15 @@ function calculateChickenPosition() {
 
 function createChickenList() {
   chickens = [
-    createChicken(1, 700),
-    createChicken(2, 1400),
-    createChicken(1, 1800),
-    createChicken(1, 2500),
-    createChicken(2, 3000),
-    createChicken(2, 3300),
-    createChicken(1, 3800),
-    createChicken(1, 4200),
-    createChicken(2, 4500),
+    createChicken(700),
+    createChicken(1400),
+    createChicken(1800),
+    createChicken(2500),
+    createChicken(3000),
+    createChicken(3300),
+    createChicken(3800),
+    createChicken(4200),
+    createChicken(4500),
   ];
 }
 
@@ -263,19 +268,32 @@ function drawEnergyBar() {
   ctx.globalAlpha = 1;
 }
 
+
 function drawChicken() {
 
-  for (let index = 0; index < chickens.length; index++) {
-    let chicken = chickens[index];
-
-    addBackgroundobject(chicken.img, chicken.position_x, bg_ground, chicken.position_y, chicken.scale, 1);
+  for (let i = 0; i < chickens.length; i++) {
+    let chicken = chickens[i];
+    addBackgroundobject(currentChickenImage.toString(), chicken.position_x, bg_ground, chicken.position_y, chicken.scale, 1);
   }
+
+    // AUDIO_RUNNING.play();
 
 }
 
-function createChicken(type, position_x) {
+function checkForChicken() {
+  setInterval(function() {
+  
+
+  let index = chickenGraphicIndex % chickenGraphics.length; //Schleife, die sich undendlich wiederholt
+  currentChickenImage = chickenGraphics[index];
+  chickenGraphicIndex = chickenGraphicIndex + 1;
+
+}, 125);
+}
+
+function createChicken(position_x) {
   return {
-    'img': './img/chicken/chicken' + type + '.png',
+
     'position_x': position_x,
     'position_y': 325,
     'scale': 0.28,
