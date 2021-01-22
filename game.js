@@ -21,7 +21,10 @@ let chickens = [];
 let chickenGraphics = ['./img/chicken/chicken1.png', './img/chicken/chicken2.png', './img/chicken/chicken3.png'];
 let chickenGraphicIndex = 0;
 let currentChickenImage = ['./img/chicken/chicken1.png'];
-let hensImages = ['./img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png'];
+let hens = [];
+let hensGraphics = ['./img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png'];
+let hensGraphicIndex = 0;
+let currentHenImage = ['./img/chicken/hen1.png'];
 let placedBottles = [500, 1000, 1700, 2500, 2800, 3300];
 let collectedBottles = 0;
 let bottleThrowTime = 0;
@@ -41,6 +44,7 @@ let AUDIO_JUMP = new Audio('audio/jump.mp3');
 let AUDIO_BOTTLE = new Audio('audio/bottle.mp3');
 let AUDIO_THROW = new Audio('audio/throw.mp3');
 let AUDIO_GLASS = new Audio('audio/glass.mp3');
+let AUDIO_HEN = new Audio('audio/hen.mp3');
 let AUDIO_FINAL_BOSS = new Audio('audio/final_boss.mp3');
 let AUDIO_WIN = new Audio('audio/win.mp3');
 let AUDIO_BACKGROUND_MUSIC = new Audio('audio/music.mp3');
@@ -58,16 +62,29 @@ function loadGame() {
   document.getElementById('start-button').classList.add('d-none');
   // AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
+  createHenList();
   checkForRunning();
   checkForChicken();
+  checkForHens();
   calculateCloudOffset();
   listenForKeys();
   calculateChickenPosition();
+  calculateHenPosition();
   checkForCollision();
 }
 
 function checkForCollision() {
   setInterval(function () {
+
+    //Check hen 
+    for (let index = 0; index < hens.length; index++) {
+      let hen = hens[index];
+      let hen_x = hen.position_x + bg_ground;
+
+      if ((hen_x - 400) < character_x && (hen_x + 400) > character_x) {
+        AUDIO_HEN.play();
+      }
+    }
 
     //Check chicken
     for (let index = 0; index < chickens.length; index++) {
@@ -137,17 +154,34 @@ function calculateChickenPosition() {
 
 }
 
+function calculateHenPosition() {
+
+  setInterval(function () {
+    for (let index = 0; index < hens.length; index++) {
+      let hen = hens[index];
+      hen.position_x = hen.position_x - hen.speed;
+
+    }
+  }, 50);
+
+}
+
 function createChickenList() {
   chickens = [
     createChicken(700),
-    createChicken(1400),
     createChicken(1800),
-    createChicken(2500),
     createChicken(3000),
     createChicken(3300),
     createChicken(3800),
-    createChicken(4200),
     createChicken(4500),
+  ];
+}
+
+function createHenList() {
+  hens = [
+    createChicken(1400),
+    createChicken(2500),
+    createChicken(4200),
   ];
 }
 
@@ -161,14 +195,14 @@ function checkForRunning() {
   setInterval(function () {
 
     if (isMovingRight) {
-      // AUDIO_RUNNING.play();
+      AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsRight.length; //Schleife, die sich undendlich wiederholt
       currentCharacterImage = characterGraphicsRight[index];
       characterGraphicIndex = characterGraphicIndex + 1;
     }
 
     if (isMovingLeft) {
-      // AUDIO_RUNNING.play();
+      AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsLeft.length;
       currentCharacterImage = characterGraphicsLeft[index];
       characterGraphicIndex = characterGraphicIndex + 1;
@@ -188,6 +222,7 @@ function draw() {
   } else {
     updateCharacter();
     drawChicken();
+    drawHen();
     drawBottles();
     requestAnimationFrame(draw);
     drawEnergyBar();
@@ -276,24 +311,37 @@ function drawChicken() {
     addBackgroundobject(currentChickenImage.toString(), chicken.position_x, bg_ground, chicken.position_y, chicken.scale, 1);
   }
 
-    // AUDIO_RUNNING.play();
+}
+
+function drawHen() {
+
+  for (let i = 0; i < hens.length; i++) {
+    let hen = hens[i];
+    addBackgroundobject(currentHenImage.toString(), hen.position_x, bg_ground, hen.position_y, hen.scale, 1);
+  }
 
 }
 
 function checkForChicken() {
-  setInterval(function() {
-  
+  setInterval(function () {
+    let index = chickenGraphicIndex % chickenGraphics.length; //Schleife, die sich undendlich wiederholt
+    currentChickenImage = chickenGraphics[index];
+    chickenGraphicIndex = chickenGraphicIndex + 1;
 
-  let index = chickenGraphicIndex % chickenGraphics.length; //Schleife, die sich undendlich wiederholt
-  currentChickenImage = chickenGraphics[index];
-  chickenGraphicIndex = chickenGraphicIndex + 1;
+  }, 125);
+}
 
-}, 125);
+function checkForHens() {
+  setInterval(function () {
+    let index = hensGraphicIndex % hensGraphics.length; //Schleife, die sich undendlich wiederholt
+    currentHenImage = hensGraphics[index];
+    hensGraphicIndex = hensGraphicIndex + 1;
+
+  }, 125);
 }
 
 function createChicken(position_x) {
   return {
-
     'position_x': position_x,
     'position_y': 325,
     'scale': 0.28,
