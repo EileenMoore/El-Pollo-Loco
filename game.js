@@ -95,7 +95,7 @@ function loadGame() {
 function checkForCollision() {
   setInterval(function () {
 
-    //Check hen 
+    //Check hen collision
     for (let index = 0; index < hens.length; index++) {
       let hen = hens[index];
       let hen_x = hen.position_x + bg_ground;
@@ -116,7 +116,7 @@ function checkForCollision() {
       }
     }
 
-    //Check chicken
+    //Check chicken collision
     for (let index = 0; index < chickens.length; index++) {
       let chicken = chickens[index];
       let chicken_x = chicken.position_x + bg_ground;
@@ -133,7 +133,7 @@ function checkForCollision() {
       }
     }
 
-    //Check bottle
+    //Check bottle collect
     for (let index = 0; index < placedBottles.length; index++) {
       let bottle_x = placedBottles[index] + bg_ground;
 
@@ -146,7 +146,22 @@ function checkForCollision() {
       }
     }
 
-    //Check final boss 
+    //Check final boss collision
+    let boss_x = BOSS_POSITION + bg_ground;
+    console.log(boss_x);
+
+    if ((boss_x - 80) < character_x && (boss_x + 80) > character_x) {
+      if (character_y > 10) {
+        if (character_energy > 0) {
+          character_energy -= 10;
+        } else {
+          character_lost_at = new Date().getTime();
+          game_finished = true;
+        }
+      }
+    }
+
+    //Check final boss energy
     if (thrownBottle_x > BOSS_POSITION + bg_ground - 100 && thrownBottle_x < BOSS_POSITION + bg_ground + 100) {
 
       if (final_boss_energy > 0) {
@@ -338,8 +353,6 @@ function drawFinalBoss() {
     BOSS_POSITION = BOSS_POSITION - 5;
   }
 
-  console.log(BOSS_POSITION);
-
   // if (bossDefeatedAt > 0) {
   //   let timePassed = new Date().getTime() - bossDefeatedAt;
 
@@ -439,8 +452,6 @@ function checkForBoss() {
   let index_attack;
 
   setInterval(function () {
-
-    console.log(bg_ground);
 
     if (bossIsAlerted) {
       //Boss is alerted
