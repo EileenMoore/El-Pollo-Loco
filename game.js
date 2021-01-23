@@ -31,10 +31,14 @@ let hensGraphics = ['./img/chicken/hen1.png', './img/chicken/hen2.png', './img/c
 let hensGraphicIndex = 0;
 let currentBossImage = './img/boss/G5.png';
 let bossAlertGraphics = ['./img/boss/G5.png', './img/boss/G6.png', './img/boss/G7.png', './img/boss/G8.png', './img/boss/G9.png', './img/boss/G10.png', './img/boss/G11.png', './img/boss/G12.png'];
+let bossWalkGraphics = ['./img/boss/G1.png', './img/boss/G2.png', './img/boss/G3.png', './img/boss/G4.png'];
+let bossAttackGraphics = ['./img/boss/G13.png', './img/boss/G14.png', './img/boss/G15.png', './img/boss/G16.png', './img/boss/G17.png', './img/boss/G18.png', './img/boss/G19.png', './img/boss/G20.png'];
 let bossHurtGraphics = ['./img/boss/G21.png', './img/boss/G22.png', './img/boss/G23.png', './img/boss/G21.png', './img/boss/G22.png', './img/boss/G23.png'];
 let bossDeadGraphics = ['./img/boss/G24.png', './img/boss/G25.png', './img/boss/G26.png'];
 let bossGraphicIndex = 0;
+let bossIsWalking = false;
 let bossIsAlerted = true;
+let bossIsAttacking = false;
 let bossIsHurt = false;
 let bossIsDead = false;
 let placedBottles = [500, 1000, 1700, 2500, 2800, 3300];
@@ -108,7 +112,7 @@ function checkForCollision() {
       }
 
       if ((hen_x - 400) < character_x && (hen_x + 400) > character_x) {
-        // AUDIO_HEN.play();
+        AUDIO_HEN.play();
       }
     }
 
@@ -136,7 +140,7 @@ function checkForCollision() {
       if ((bottle_x - 40) < character_x && (bottle_x + 40) > character_x) {
         if (character_y > 110) {
           placedBottles.splice(index, 1);
-          // AUDIO_BOTTLE.play();
+          AUDIO_BOTTLE.play();
           collectedBottles++;
         }
       }
@@ -149,20 +153,27 @@ function checkForCollision() {
         final_boss_energy = final_boss_energy - 10;
         AUDIO_GLASS.play();
         bossIsAlerted = false;
-        bossIsHurt = true; 
+        bossIsWalking = false;
+        bossIsAttacking = false;
+        bossIsHurt = true;
 
         setTimeout(function () {
-        AUDIO_FINAL_BOSS2.play();
-      }, 500);
-
+          AUDIO_FINAL_BOSS2.play();
+        }, 500);
 
       } else if (bossDefeatedAt == 0) {
         bossDefeatedAt = new Date().getTime();
+        bossIsAlerted = false;
+        bossIsWalking = false;
+        bossIsAttacking = false;
+        bossIsHurt = false;
         bossIsDead = true;
+        AUDIO_FINAL_BOSS2.pause();
+        AUDIO_FINAL_BOSS.play();
 
         setTimeout(function () {
           finishLevel();
-        }, 1500);
+        }, 2000);
 
       }
     }
@@ -171,7 +182,7 @@ function checkForCollision() {
 
 function finishLevel() {
 
-  // AUDIO_WIN.play();
+  AUDIO_WIN.play();
   game_finished = true;
 
 }
@@ -231,7 +242,7 @@ function checkForRunning() {
     if (isMovingRight) {
       isFacingRight = true;
       isFacingLeft = false;
-      // AUDIO_RUNNING.play();
+      AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsRight.length; //Schleife, die sich undendlich wiederholt
       currentCharacterImage = characterGraphicsRight[index];
       characterGraphicIndex = characterGraphicIndex + 1;
@@ -240,7 +251,7 @@ function checkForRunning() {
     if (isMovingLeft) {
       isFacingRight = false;
       isFacingLeft = true;
-      // AUDIO_RUNNING.play();
+      AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsLeft.length;
       currentCharacterImage = characterGraphicsLeft[index];
       characterGraphicIndex = characterGraphicIndex + 1;
@@ -286,7 +297,6 @@ function checkForJump() {
       characterGraphicIndex = characterGraphicIndex + 1;
     }
 
-
   }, 100);
 }
 
@@ -322,6 +332,13 @@ function drawFinalScreen() {
 function drawFinalBoss() {
   let chicken_x = BOSS_POSITION;
   let chicken_y = 98;
+
+
+  if (bossIsWalking) {
+    BOSS_POSITION = BOSS_POSITION - 5;
+  }
+
+  console.log(BOSS_POSITION);
 
   // if (bossDefeatedAt > 0) {
   //   let timePassed = new Date().getTime() - bossDefeatedAt;
@@ -417,47 +434,77 @@ function checkForHens() {
 }
 
 function checkForBoss() {
+
   let index_hurt;
+  let index_attack;
 
   setInterval(function () {
 
-    console.log(bossIsHurt);
-    console.log(index_hurt);
+    console.log(bg_ground);
 
     if (bossIsAlerted) {
-      //Boss alert
+      //Boss is alerted
       let index = bossGraphicIndex % bossAlertGraphics.length; //Schleife, die sich undendlich wiederholt
       currentBossImage = bossAlertGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
+
+      if (bg_ground < -4300) {
+        setTimeout(function () {
+          bossIsWalking = true;
+          bossIsAlerted = false;
+          bossGraphicIndex = 0;
+        }, 1000);
+      }
+    }
+
+    if (bossIsWalking) {
+      //Boss walks
+      let index = bossGraphicIndex % bossWalkGraphics.length; //Schleife, die sich undendlich wiederholt
+      currentBossImage = bossWalkGraphics[index];
+      bossGraphicIndex = bossGraphicIndex + 1;
+
+    }
+
+    if (bossIsAttacking) {
+      //Boss attacks
+      index_attack = bossGraphicIndex % bossAttackGraphics.length; //Schleife, die sich undendlich wiederholt
+      currentBossImage = bossAttackGraphics[index_attack];
+      bossGraphicIndex = bossGraphicIndex + 1
+
+      setTimeout(function () {
+        bossIsAttacking = false;
+        bossIsWalking = true;
+        bossGraphicIndex = 0;
+        index_attack = 0;
+      }, 1000);
+
     }
 
     if (bossIsHurt) {
-      //Boss hurt
-      if(index_hurt == 5) {
+      //Boss is hurt
+      if (index_hurt == 5) {
 
-        setTimeout(function(){
-          bossIsAlerted = true;
-          bossIsHurt = false;
-          index_hurt = 0;
-
-        }, 250);
+        bossIsAttacking = true;
+        bossIsHurt = false;
+        index_hurt = 0;
+        bossGraphicIndex = 0;
 
       } else {
-        index_hurt = bossGraphicIndex % bossHurtGraphics.length; 
+        index_hurt = bossGraphicIndex % bossHurtGraphics.length;
         currentBossImage = bossHurtGraphics[index_hurt];
         bossGraphicIndex = bossGraphicIndex + 1;
       }
     }
 
     if (bossIsDead) {
-      //Boss dead
+      //Boss is dead
       bossIsAlerted = false;
       let index = bossGraphicIndex % bossDeadGraphics.length; //Schleife, die sich undendlich wiederholt
       currentBossImage = bossDeadGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
     }
 
-  }, 150);
+  }, 100);
 }
 
 function createChicken(position_x) {
@@ -569,7 +616,6 @@ function drawGround() {
     addBackgroundobject('./img/background/ground1.png', index * 1920, bg_ground, -90, 0.5);
   }
 
-
 }
 
 function addBackgroundobject(src, offsetX, bg_elements, offsetY, scale, opacity) {
@@ -601,7 +647,7 @@ function listenForKeys() {
       let passedTime = new Date().getTime() - bottleThrowTime;
 
       if (passedTime > 1000) {
-        // AUDIO_THROW.play();
+        AUDIO_THROW.play();
         collectedBottles--;
         bottleThrowTime = new Date().getTime();
       }
@@ -611,7 +657,7 @@ function listenForKeys() {
 
     if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2) {
       isJumping = true;
-      // AUDIO_JUMP.play();
+      AUDIO_JUMP.play();
       lasJumpStarted = new Date().getTime();
 
       setTimeout(function () {
