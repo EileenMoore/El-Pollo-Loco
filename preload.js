@@ -9,7 +9,7 @@ let imagePaths = ['./img/pepe/I-1.png', './img/pepe/W-21.png', './img/pepe/W-22.
     './img/boss/G13.png', './img/boss/G14.png', './img/boss/G15.png', './img/boss/G16.png', './img/boss/G17.png', './img/boss/G18.png', './img/boss/G19.png', './img/boss/G20.png',
     './img/background/sky.png', './img/background/clouds.png',
     './img/background/ground1.png', './img/background/ground2.png', './img/background/ground3.png',
-    './img/bottle/bottle1.png', './img/bottle/bottle1.png',
+    './img/bottle/bottle.png', './img/bottle/bottle1.png', './img/bottle/bottle2.png', './img/bottle/bottle3.png', './img/bottle/bottle4.png', './img/bottle/bottle5.png',
     'img/chicken_big.png', 'img/chicken_dead.png'];
 
 let images = [];

@@ -1,6 +1,6 @@
 let canvas;
 let ctx;
-let character_x = 100;
+let character_x = 200;
 let character_y = 150;
 let character_energy = 100;
 let final_boss_energy = 100;
@@ -41,6 +41,9 @@ let bossIsAlerted = true;
 let bossIsAttacking = false;
 let bossIsHurt = false;
 let bossIsDead = false;
+let bottleGraphics = ['./img/bottle/bottle.png', './img/bottle/bottle3.png', './img/bottle/bottle4.png', './img/bottle/bottle5.png'];
+let currentBottleImage = './img/bottle/bottle.png';
+let bottleGraphicIndex = 0;
 let placedBottles = [500, 1000, 1700, 2500, 2800, 3300];
 let collectedBottles = 0;
 let bottleThrowTime = 0;
@@ -85,6 +88,7 @@ function loadGame() {
   checkForChicken();
   checkForHens();
   checkForBoss();
+  checkForBottle();
   calculateCloudOffset();
   listenForKeys();
   calculateChickenPosition();
@@ -93,7 +97,13 @@ function loadGame() {
 }
 
 function checkForCollision() {
+
   setInterval(function () {
+
+    console.log('pepe' + character_x);
+    console.log('boss' + BOSS_POSITION + bg_ground);
+    console.log('differenz pepe boss' + (character_x - (BOSS_POSITION + bg_ground)));
+    console.log(bg_ground);
 
     //Check hen collision
     for (let index = 0; index < hens.length; index++) {
@@ -148,7 +158,6 @@ function checkForCollision() {
 
     //Check final boss collision
     let boss_x = BOSS_POSITION + bg_ground;
-    console.log(boss_x);
 
     if ((boss_x - 80) < character_x && (boss_x + 80) > character_x) {
       if (character_y > 10) {
@@ -167,9 +176,6 @@ function checkForCollision() {
       if (final_boss_energy > 0) {
         final_boss_energy = final_boss_energy - 10;
         AUDIO_GLASS.play();
-        bossIsAlerted = false;
-        bossIsWalking = false;
-        bossIsAttacking = false;
         bossIsHurt = true;
 
         setTimeout(function () {
@@ -178,10 +184,6 @@ function checkForCollision() {
 
       } else if (bossDefeatedAt == 0) {
         bossDefeatedAt = new Date().getTime();
-        bossIsAlerted = false;
-        bossIsWalking = false;
-        bossIsAttacking = false;
-        bossIsHurt = false;
         bossIsDead = true;
         AUDIO_FINAL_BOSS2.pause();
         AUDIO_FINAL_BOSS.play();
@@ -315,6 +317,17 @@ function checkForJump() {
   }, 100);
 }
 
+function checkForBottle() {
+
+  setInterval(function () {
+
+    let index = bottleGraphicIndex % bottleGraphics.length;
+    currentBottleImage = bottleGraphics[index];
+    bottleGraphicIndex = bottleGraphicIndex + 1;
+
+  }, 100);
+
+}
 
 function draw() {
   drawBackground();
@@ -372,13 +385,19 @@ function drawFinalBoss() {
 }
 
 function drawThrowBottle() {
+
   let timePassed = new Date().getTime() - bottleThrowTime;
   let gravity = Math.pow(9.81, timePassed / 300);
-  thrownBottle_x = 125 + (timePassed * 0.7);
-  thrownBottel_y = 300 - (timePassed * 0.6 - gravity);
 
-  let base_image = checkBackgroundImageCache('./img/bottle/bottle1.png');
-  ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.25, base_image.height * 0.25);
+  if (isFacingRight) {
+    thrownBottle_x = 225 + (timePassed * 0.7);
+  } else if (isFacingLeft) {
+    thrownBottle_x = 225 - (timePassed * 0.7);
+  }
+  thrownBottel_y = 280 - (timePassed * 0.6 - gravity);
+
+  let base_image = checkBackgroundImageCache(currentBottleImage);
+  ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.2, base_image.height * 0.2);
 
 }
 
@@ -453,8 +472,8 @@ function checkForBoss() {
 
   setInterval(function () {
 
+    //Boss is alerted
     if (bossIsAlerted) {
-      //Boss is alerted
       let index = bossGraphicIndex % bossAlertGraphics.length; //Schleife, die sich undendlich wiederholt
       currentBossImage = bossAlertGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
@@ -468,16 +487,15 @@ function checkForBoss() {
       }
     }
 
+    //Boss walks
     if (bossIsWalking) {
-      //Boss walks
       let index = bossGraphicIndex % bossWalkGraphics.length; //Schleife, die sich undendlich wiederholt
       currentBossImage = bossWalkGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
-
     }
 
+    //Boss attacks
     if (bossIsAttacking) {
-      //Boss attacks
       index_attack = bossGraphicIndex % bossAttackGraphics.length; //Schleife, die sich undendlich wiederholt
       currentBossImage = bossAttackGraphics[index_attack];
       bossGraphicIndex = bossGraphicIndex + 1
@@ -488,13 +506,15 @@ function checkForBoss() {
         bossGraphicIndex = 0;
         index_attack = 0;
       }, 1000);
-
     }
 
+    //Boss is hurt
     if (bossIsHurt) {
-      //Boss is hurt
-      if (index_hurt == 5) {
+      bossIsAlerted = false;
+      bossIsWalking = false;
+      bossIsAttacking = false;
 
+      if (index_hurt == 5) {
         bossIsAttacking = true;
         bossIsHurt = false;
         index_hurt = 0;
@@ -507,15 +527,18 @@ function checkForBoss() {
       }
     }
 
+    //Boss is dead
     if (bossIsDead) {
-      //Boss is dead
       bossIsAlerted = false;
+      bossIsWalking = false;
+      bossIsAttacking = false;
+      bossIsHurt = false;
       let index = bossGraphicIndex % bossDeadGraphics.length; //Schleife, die sich undendlich wiederholt
       currentBossImage = bossDeadGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
     }
-
   }, 100);
+
 }
 
 function createChicken(position_x) {
@@ -554,10 +577,13 @@ function drawBackground() {
 
   drawSky();
   drawHills();
+  drawClouds();
   drawShadows();
   drawGround();
 
-  //Draw clouds
+}
+
+function drawClouds() {
 
   for (let index = -2; index < 10; index++) {
     addBackgroundobject('img/background/clouds.png', (index * 1920) - cloudOffset, bg_ground, -50, 0.5, 0.5);
@@ -566,22 +592,24 @@ function drawBackground() {
 
 
 function drawSky() {
-  if (isMovingRight) {
+  if (isMovingRight && bg_ground > -5500) {
     bg_sky = bg_sky - GAME_SPEED;
   }
 
   if (isMovingLeft && bg_ground < 500) {
-    bg_ground = bg_ground + GAME_SPEED;
+    bg_sky = bg_sky + GAME_SPEED;
   }
+
+
   for (let index = -2; index < 20; index++) {
-    addBackgroundobject('./img/background/sky.png', index * 955, bg_ground, -80, 0.5);
+    addBackgroundobject('./img/background/sky.png', index * 955, bg_sky, -80, 0.5);
   }
 
 }
 
 function drawHills() {
 
-  if (isMovingRight) {
+  if (isMovingRight && bg_ground > -5500) {
     bg_hills = bg_hills - (0.25 * GAME_SPEED);
   }
 
@@ -597,7 +625,7 @@ function drawHills() {
 
 function drawShadows() {
 
-  if (isMovingRight) {
+  if (isMovingRight && bg_ground > -5500) {
     bg_shadows = bg_shadows - (0.5 * GAME_SPEED);
   }
 
@@ -613,7 +641,7 @@ function drawShadows() {
 
 function drawGround() {
 
-  if (isMovingRight) {
+  if (isMovingRight && bg_ground > -5500) {
     bg_ground = bg_ground - GAME_SPEED;
   }
 
