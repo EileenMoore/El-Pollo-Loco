@@ -2,7 +2,7 @@ let canvas;
 let ctx;
 let character_x = 200;
 let character_y = 150;
-let character_energy = 100;
+let character_energy = 1000;
 let final_boss_energy = 100;
 let bg_ground = 0;
 let bg_sky = 0;
@@ -32,10 +32,16 @@ let hensGraphicIndex = 0;
 let currentBossImage = './img/boss/G5.png';
 let bossAlertGraphics = ['./img/boss/G5.png', './img/boss/G6.png', './img/boss/G7.png', './img/boss/G8.png', './img/boss/G9.png', './img/boss/G10.png', './img/boss/G11.png', './img/boss/G12.png'];
 let bossWalkGraphics = ['./img/boss/G1.png', './img/boss/G2.png', './img/boss/G3.png', './img/boss/G4.png'];
+let bossWalkRightGraphics = ['./img/boss/GR1.png', './img/boss/GR2.png', './img/boss/GR3.png', './img/boss/GR4.png'];
 let bossAttackGraphics = ['./img/boss/G13.png', './img/boss/G14.png', './img/boss/G15.png', './img/boss/G16.png', './img/boss/G17.png', './img/boss/G18.png', './img/boss/G19.png', './img/boss/G20.png'];
+let bossAttackRightGraphics = ['./img/boss/GR13.png', './img/boss/GR14.png', './img/boss/GR15.png', './img/boss/GR16.png', './img/boss/GR17.png', './img/boss/GR18.png', './img/boss/GR19.png', './img/boss/GR20.png'];
 let bossHurtGraphics = ['./img/boss/G21.png', './img/boss/G22.png', './img/boss/G23.png', './img/boss/G21.png', './img/boss/G22.png', './img/boss/G23.png'];
+let bossHurtRightGraphics = ['./img/boss/GR21.png', './img/boss/GR22.png', './img/boss/GR23.png', './img/boss/GR21.png', './img/boss/GR22.png', './img/boss/GR23.png'];
 let bossDeadGraphics = ['./img/boss/G24.png', './img/boss/G25.png', './img/boss/G26.png'];
+let bossDeadRightGraphics = ['./img/boss/GR24.png', './img/boss/GR25.png', './img/boss/GR26.png'];
 let bossGraphicIndex = 0;
+let bossIsFacingRight = false;
+let bossIsFacingLeft = true;
 let bossIsWalking = false;
 let bossIsAlerted = true;
 let bossIsAttacking = false;
@@ -80,7 +86,7 @@ function init() {
 
 function loadGame() {
   document.getElementById('start-button').classList.add('d-none');
-  AUDIO_BACKGROUND_MUSIC.play();
+  // AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
   createHenList();
   checkForRunning();
@@ -100,10 +106,13 @@ function checkForCollision() {
 
   setInterval(function () {
 
-    console.log('pepe' + character_x);
-    console.log('boss' + BOSS_POSITION + bg_ground);
-    console.log('differenz pepe boss' + (character_x - (BOSS_POSITION + bg_ground)));
-    console.log(bg_ground);
+    console.log('pepe ' + character_x);
+    let boss = BOSS_POSITION + bg_ground;
+    console.log('boss ' + boss);
+    let differenz = character_x - (BOSS_POSITION + bg_ground);
+    console.log('differenz ' + differenz);
+    console.log('left ' + bossIsFacingLeft);
+    console.log('right ' + bossIsFacingRight);
 
     //Check hen collision
     for (let index = 0; index < hens.length; index++) {
@@ -362,16 +371,25 @@ function drawFinalBoss() {
   let chicken_y = 98;
 
 
-  if (bossIsWalking) {
+  if (bossIsWalking && bossIsFacingLeft) {
     BOSS_POSITION = BOSS_POSITION - 5;
   }
 
-  // if (bossDefeatedAt > 0) {
-  //   let timePassed = new Date().getTime() - bossDefeatedAt;
+  if (bossIsWalking && bossIsFacingRight) {
+    BOSS_POSITION = BOSS_POSITION + 5;
+  }
 
-  //   chicken_x = chicken_x + timePassed * 0.7;
-  //   chicken_y = chicken_y - timePassed * 0.3;
-  // }
+  let difference = character_x - (BOSS_POSITION + bg_ground);
+
+  if (bossIsFacingLeft && difference > 500) {
+    bossIsFacingLeft = false;
+    bossIsFacingRight = true;
+  }
+
+  if (bossIsFacingRight && difference < -500) {
+    bossIsFacingLeft = true;
+    bossIsFacingRight = false;
+  }
 
   addBackgroundobject(currentBossImage, chicken_x, bg_ground, chicken_y, 0.25, 1);
 
@@ -488,14 +506,20 @@ function checkForBoss() {
     }
 
     //Boss walks
-    if (bossIsWalking) {
+    if (bossIsWalking && bossIsFacingLeft) {
       let index = bossGraphicIndex % bossWalkGraphics.length; //Schleife, die sich undendlich wiederholt
       currentBossImage = bossWalkGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
     }
 
+    if (bossIsWalking && bossIsFacingRight) {
+      let index = bossGraphicIndex % bossWalkRightGraphics.length; //Schleife, die sich undendlich wiederholt
+      currentBossImage = bossWalkRightGraphics[index];
+      bossGraphicIndex = bossGraphicIndex + 1;
+    }
+
     //Boss attacks
-    if (bossIsAttacking) {
+    if (bossIsAttacking && bossIsFacingLeft) {
       index_attack = bossGraphicIndex % bossAttackGraphics.length; //Schleife, die sich undendlich wiederholt
       currentBossImage = bossAttackGraphics[index_attack];
       bossGraphicIndex = bossGraphicIndex + 1
@@ -508,8 +532,21 @@ function checkForBoss() {
       }, 1000);
     }
 
+    if (bossIsAttacking && bossIsFacingRight) {
+      index_attack = bossGraphicIndex % bossAttackRightGraphics.length; //Schleife, die sich undendlich wiederholt
+      currentBossImage = bossAttackRightGraphics[index_attack];
+      bossGraphicIndex = bossGraphicIndex + 1
+
+      setTimeout(function () {
+        bossIsAttacking = false;
+        bossIsWalking = true;
+        bossGraphicIndex = 0;
+        index_attack = 0;
+      }, 1000);
+    }
+
     //Boss is hurt
-    if (bossIsHurt) {
+    if (bossIsHurt && bossIsFacingLeft) {
       bossIsAlerted = false;
       bossIsWalking = false;
       bossIsAttacking = false;
@@ -527,8 +564,26 @@ function checkForBoss() {
       }
     }
 
+    if (bossIsHurt && bossIsFacingRight) {
+      bossIsAlerted = false;
+      bossIsWalking = false;
+      bossIsAttacking = false;
+
+      if (index_hurt == 5) {
+        bossIsAttacking = true;
+        bossIsHurt = false;
+        index_hurt = 0;
+        bossGraphicIndex = 0;
+
+      } else {
+        index_hurt = bossGraphicIndex % bossHurtRightGraphics.length;
+        currentBossImage = bossHurtRightGraphics[index_hurt];
+        bossGraphicIndex = bossGraphicIndex + 1;
+      }
+    }
+
     //Boss is dead
-    if (bossIsDead) {
+    if (bossIsDead && bossIsFacingLeft) {
       bossIsAlerted = false;
       bossIsWalking = false;
       bossIsAttacking = false;
@@ -537,6 +592,18 @@ function checkForBoss() {
       currentBossImage = bossDeadGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
     }
+
+    //Boss is dead
+    if (bossIsDead && bossIsFacingRight) {
+      bossIsAlerted = false;
+      bossIsWalking = false;
+      bossIsAttacking = false;
+      bossIsHurt = false;
+      let index = bossGraphicIndex % bossDeadRightGraphics.length; //Schleife, die sich undendlich wiederholt
+      currentBossImage = bossDeadRightGraphics[index];
+      bossGraphicIndex = bossGraphicIndex + 1;
+    }
+
   }, 100);
 
 }

@@ -5,12 +5,13 @@ let imagePaths = ['./img/pepe/I-1.png', './img/pepe/W-21.png', './img/pepe/W-22.
     './img/chicken/chicken1.png', './img/chicken/chicken2.png', './img/chicken/chicken3.png',
     './img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png',
     './img/boss/G1.png', './img/boss/G2.png', './img/boss/G3.png', './img/boss/G4.png',
+    './img/boss/GR1.png', './img/boss/GR2.png', './img/boss/GR3.png', './img/boss/GR4.png',
     './img/boss/G5.png', './img/boss/G6.png', './img/boss/G7.png', './img/boss/G8.png', './img/boss/G9.png', './img/boss/G10.png', './img/boss/G11.png', './img/boss/G12.png',
     './img/boss/G13.png', './img/boss/G14.png', './img/boss/G15.png', './img/boss/G16.png', './img/boss/G17.png', './img/boss/G18.png', './img/boss/G19.png', './img/boss/G20.png',
     './img/background/sky.png', './img/background/clouds.png',
     './img/background/ground1.png', './img/background/ground2.png', './img/background/ground3.png',
     './img/bottle/bottle.png', './img/bottle/bottle1.png', './img/bottle/bottle2.png', './img/bottle/bottle3.png', './img/bottle/bottle4.png', './img/bottle/bottle5.png',
-    'img/chicken_big.png', 'img/chicken_dead.png'];
+];
 
 let images = [];
 
