@@ -14,11 +14,14 @@ let isJumping = false;
 let lasJumpStarted = 0;
 let isFacingRight = true;
 let isFacingLeft = false;
+let isHurt = false;
+let lastHurtStarted = 0;
 let currentCharacterImage = './img/pepe/I-1.png';
 let characterGraphicsRight = ['./img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png'];
 let characterGraphicsLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png'];
 let characterGraphicsJumpRight = ['./img/pepe/J-32.png', './img/pepe/J-33.png', './img/pepe/J-34.png', './img/pepe/J-35.png', './img/pepe/J-36.png', './img/pepe/J-37.png', './img/pepe/J-38.png'];
 let characterGraphicsJumpLeft = ['./img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-36.png', './img/pepe/JL-37.png', './img/pepe/JL-38.png'];
+let characterGraphicsHurtRight = ['./img/pepe/D-51.png', './img/pepe/D-52.png', './img/pepe/D-53.png', './img/pepe/D-54.png', './img/pepe/D-55.png', './img/pepe/D-56.png', './img/pepe/D-51.png', './img/pepe/D-52.png'];
 let characterGraphicIndex = 0;
 let cloudOffset = 0;
 let chickens = [];
@@ -31,13 +34,13 @@ let hensGraphics = ['./img/chicken/hen1.png', './img/chicken/hen2.png', './img/c
 let hensGraphicIndex = 0;
 let currentBossImage = './img/boss/G5.png';
 let bossAlertGraphics = ['./img/boss/G5.png', './img/boss/G6.png', './img/boss/G7.png', './img/boss/G8.png', './img/boss/G9.png', './img/boss/G10.png', './img/boss/G11.png', './img/boss/G12.png'];
-let bossWalkGraphics = ['./img/boss/G1.png', './img/boss/G2.png', './img/boss/G3.png', './img/boss/G4.png'];
+let bossWalkLeftGraphics = ['./img/boss/G1.png', './img/boss/G2.png', './img/boss/G3.png', './img/boss/G4.png'];
 let bossWalkRightGraphics = ['./img/boss/GR1.png', './img/boss/GR2.png', './img/boss/GR3.png', './img/boss/GR4.png'];
-let bossAttackGraphics = ['./img/boss/G13.png', './img/boss/G14.png', './img/boss/G15.png', './img/boss/G16.png', './img/boss/G17.png', './img/boss/G18.png', './img/boss/G19.png', './img/boss/G20.png'];
+let bossAttackLeftGraphics = ['./img/boss/G13.png', './img/boss/G14.png', './img/boss/G15.png', './img/boss/G16.png', './img/boss/G17.png', './img/boss/G18.png', './img/boss/G19.png', './img/boss/G20.png'];
 let bossAttackRightGraphics = ['./img/boss/GR13.png', './img/boss/GR14.png', './img/boss/GR15.png', './img/boss/GR16.png', './img/boss/GR17.png', './img/boss/GR18.png', './img/boss/GR19.png', './img/boss/GR20.png'];
-let bossHurtGraphics = ['./img/boss/G21.png', './img/boss/G22.png', './img/boss/G23.png', './img/boss/G21.png', './img/boss/G22.png', './img/boss/G23.png'];
+let bossHurtLeftGraphics = ['./img/boss/G21.png', './img/boss/G22.png', './img/boss/G23.png', './img/boss/G21.png', './img/boss/G22.png', './img/boss/G23.png'];
 let bossHurtRightGraphics = ['./img/boss/GR21.png', './img/boss/GR22.png', './img/boss/GR23.png', './img/boss/GR21.png', './img/boss/GR22.png', './img/boss/GR23.png'];
-let bossDeadGraphics = ['./img/boss/G24.png', './img/boss/G25.png', './img/boss/G26.png'];
+let bossDeadLeftGraphics = ['./img/boss/G24.png', './img/boss/G25.png', './img/boss/G26.png'];
 let bossDeadRightGraphics = ['./img/boss/GR24.png', './img/boss/GR25.png', './img/boss/GR26.png'];
 let bossGraphicIndex = 0;
 let bossIsFacingRight = false;
@@ -59,13 +62,20 @@ let bossDefeatedAt = 0;
 let game_finished = false;
 let character_lost_at = 0;
 
+let musicIsOn = true;
+let musicIsOff = false;
+let soundIsOn = true;
+let soundIsOff = false;
+
 // -------------------------Game config-------------------------
 
 let JUMP_TIME = 300; // in ms
+let HURT_TIME = 700;
 let GAME_SPEED = 7;
 let BOSS_POSITION = 5000;
 let AUDIO_RUNNING = new Audio('audio/running.mp3');
 let AUDIO_JUMP = new Audio('audio/jump.mp3');
+let AUDIO_HURT = new Audio('audio/hurt.mp3');
 let AUDIO_BOTTLE = new Audio('audio/bottle.mp3');
 let AUDIO_THROW = new Audio('audio/throw.mp3');
 let AUDIO_GLASS = new Audio('audio/glass.mp3');
@@ -86,11 +96,12 @@ function init() {
 
 function loadGame() {
   document.getElementById('start-button').classList.add('d-none');
-  // AUDIO_BACKGROUND_MUSIC.play();
+  AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
   createHenList();
   checkForRunning();
   checkForJump();
+  checkIfHurt();
   checkForChicken();
   checkForHens();
   checkForBoss();
@@ -106,14 +117,6 @@ function checkForCollision() {
 
   setInterval(function () {
 
-    console.log('pepe ' + character_x);
-    let boss = BOSS_POSITION + bg_ground;
-    console.log('boss ' + boss);
-    let differenz = character_x - (BOSS_POSITION + bg_ground);
-    console.log('differenz ' + differenz);
-    console.log('left ' + bossIsFacingLeft);
-    console.log('right ' + bossIsFacingRight);
-
     //Check hen collision
     for (let index = 0; index < hens.length; index++) {
       let hen = hens[index];
@@ -123,6 +126,12 @@ function checkForCollision() {
         if (character_y > 110) {
           if (character_energy > 0) {
             character_energy -= 10;
+
+            isHurt = true;
+            AUDIO_HURT.play();
+            lastHurtStarted = new Date().getTime();
+
+
           } else {
             character_lost_at = new Date().getTime();
             game_finished = true;
@@ -130,7 +139,7 @@ function checkForCollision() {
         }
       }
 
-      if ((hen_x - 400) < character_x && (hen_x + 400) > character_x) {
+      if ((hen_x - 400) < character_x) {
         AUDIO_HEN.play();
       }
     }
@@ -144,6 +153,11 @@ function checkForCollision() {
         if (character_y > 110) {
           if (character_energy > 0) {
             character_energy -= 10;
+
+            isHurt = true;
+            AUDIO_HURT.play();
+            lastHurtStarted = new Date().getTime();
+
           } else {
             character_lost_at = new Date().getTime();
             game_finished = true;
@@ -172,6 +186,12 @@ function checkForCollision() {
       if (character_y > 10) {
         if (character_energy > 0) {
           character_energy -= 10;
+
+          isHurt = true;
+          AUDIO_HURT.play();
+          lastHurtStarted = new Date().getTime();
+
+
         } else {
           character_lost_at = new Date().getTime();
           game_finished = true;
@@ -205,6 +225,7 @@ function checkForCollision() {
     }
   }, 100);
 }
+
 
 function finishLevel() {
 
@@ -323,6 +344,20 @@ function checkForJump() {
       characterGraphicIndex = characterGraphicIndex + 1;
     }
 
+  }, 100);
+}
+
+function checkIfHurt() {
+  let index;
+
+  setInterval(function () {
+
+    if (isHurt && isFacingRight) {
+      index = characterGraphicIndex % characterGraphicsHurtRight.length;
+      currentCharacterImage = characterGraphicsHurtRight[index];
+      characterGraphicIndex = characterGraphicIndex + 1;
+
+    }
   }, 100);
 }
 
@@ -507,8 +542,8 @@ function checkForBoss() {
 
     //Boss walks
     if (bossIsWalking && bossIsFacingLeft) {
-      let index = bossGraphicIndex % bossWalkGraphics.length; //Schleife, die sich undendlich wiederholt
-      currentBossImage = bossWalkGraphics[index];
+      let index = bossGraphicIndex % bossWalkLeftGraphics.length; //Schleife, die sich undendlich wiederholt
+      currentBossImage = bossWalkLeftGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
     }
 
@@ -520,8 +555,8 @@ function checkForBoss() {
 
     //Boss attacks
     if (bossIsAttacking && bossIsFacingLeft) {
-      index_attack = bossGraphicIndex % bossAttackGraphics.length; //Schleife, die sich undendlich wiederholt
-      currentBossImage = bossAttackGraphics[index_attack];
+      index_attack = bossGraphicIndex % bossAttackLeftGraphics.length; //Schleife, die sich undendlich wiederholt
+      currentBossImage = bossAttackLeftGraphics[index_attack];
       bossGraphicIndex = bossGraphicIndex + 1
 
       setTimeout(function () {
@@ -558,8 +593,8 @@ function checkForBoss() {
         bossGraphicIndex = 0;
 
       } else {
-        index_hurt = bossGraphicIndex % bossHurtGraphics.length;
-        currentBossImage = bossHurtGraphics[index_hurt];
+        index_hurt = bossGraphicIndex % bossHurtLeftGraphics.length;
+        currentBossImage = bossHurtLeftGraphics[index_hurt];
         bossGraphicIndex = bossGraphicIndex + 1;
       }
     }
@@ -588,8 +623,8 @@ function checkForBoss() {
       bossIsWalking = false;
       bossIsAttacking = false;
       bossIsHurt = false;
-      let index = bossGraphicIndex % bossDeadGraphics.length; //Schleife, die sich undendlich wiederholt
-      currentBossImage = bossDeadGraphics[index];
+      let index = bossGraphicIndex % bossDeadLeftGraphics.length; //Schleife, die sich undendlich wiederholt
+      currentBossImage = bossDeadLeftGraphics[index];
       bossGraphicIndex = bossGraphicIndex + 1;
     }
 
@@ -659,6 +694,7 @@ function drawClouds() {
 
 
 function drawSky() {
+
   if (isMovingRight && bg_ground > -5500) {
     bg_sky = bg_sky - GAME_SPEED;
   }
@@ -737,16 +773,27 @@ function addBackgroundobject(src, offsetX, bg_elements, offsetY, scale, opacity)
 function listenForKeys() {
 
   document.addEventListener("keydown", e => {
+
     const k = e.key;
 
+    let timePassedSinceHurt = new Date().getTime() - lastHurtStarted;
+
+    console.log(timePassedSinceHurt);
+
     if (k == 'ArrowRight') {
-      // character_x = character_x + 5;
       isMovingRight = true;
+      
+      if( timePassedSinceHurt < HURT_TIME) {
+        isMovingRight = false;
+      }
     }
 
     if (k == 'ArrowLeft') {
-      // character_x = character_x - 5;
       isMovingLeft = true;
+
+      if( timePassedSinceHurt < HURT_TIME) {
+        isMovingLeft = false;
+      }
     }
 
     if (k == 'd' && collectedBottles > 0) {
@@ -785,4 +832,70 @@ function listenForKeys() {
       isMovingLeft = false;
     }
   });
+}
+
+function turnMusicOff() {
+
+  document.addEventListener("keydown", e => {
+
+    if (e.key == 'm' && musicIsOn) {
+      AUDIO_BACKGROUND_MUSIC.pause();
+      setTimeout(function () {
+        musicIsOn = false;
+        musicIsOff = true;
+      }, 100);
+    }
+
+    if (e.key == 'm' && musicIsOff) {
+      AUDIO_BACKGROUND_MUSIC.play();
+      setTimeout(function () {
+        musicIsOn = true;
+        musicIsOff = false;
+      }, 100);
+    }
+
+  });
+
+}
+
+function turnVolumeOff() {
+
+  document.addEventListener("keydown", e => {
+
+    if (e.key == 'v' && soundIsOn) {
+      AUDIO_BOTTLE.muted = true;
+      AUDIO_FINAL_BOSS.muted = true;
+      AUDIO_FINAL_BOSS2.muted = true;
+      AUDIO_GLASS.muted = true;
+      AUDIO_HEN.muted = true;
+      AUDIO_JUMP.muted = true;
+      AUDIO_THROW.muted = true;
+      AUDIO_WIN.muted = true;
+      AUDIO_RUNNING.muted = true;
+
+      setTimeout(function () {
+        soundIsOn = false;
+        soundIsOff = true;
+      }, 100);
+    }
+
+    if (e.key == 'v' && soundIsOff) {
+      AUDIO_BOTTLE.muted = false;
+      AUDIO_FINAL_BOSS.muted = false;
+      AUDIO_FINAL_BOSS2.muted = false;
+      AUDIO_GLASS.muted = false;
+      AUDIO_HEN.muted = false;
+      AUDIO_JUMP.muted = false;
+      AUDIO_THROW.muted = false;
+      AUDIO_WIN.muted = false;
+      AUDIO_RUNNING.muted = false;
+
+      setTimeout(function () {
+        soundIsOn = true;
+        soundIsOff = false;
+      }, 100);
+    }
+
+  });
+
 }

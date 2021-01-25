@@ -10,7 +10,7 @@
     <title>El Pollo Loco</title>
 </head>
 
-<body onload="init()">
+<body onload="init(); turnMusicOff(); turnVolumeOff()">
 
     <div class="canvas-container">
 
@@ -19,6 +19,7 @@
         <canvas id="canvas" width="820" height="450"></canvas>
     </div>
     <h3>Run: Arrow right/left | Jump: space-bar | Throw bottles: d</h3>
+    <h3>Music on/off: m | Volume on/off: v</h3>
 
     <div id="start-button" class="button-position">
         <button onclick="loadGame()">Start</button>
