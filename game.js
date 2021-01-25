@@ -2,7 +2,7 @@ let canvas;
 let ctx;
 let character_x = 200;
 let character_y = 150;
-let character_energy = 1000;
+let character_energy = 100;
 let final_boss_energy = 100;
 let bg_ground = 0;
 let bg_sky = 0;
@@ -11,7 +11,7 @@ let bg_shadows = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
 let isJumping = false;
-let lasJumpStarted = 0;
+let lastJumpStarted = 0;
 let isFacingRight = true;
 let isFacingLeft = false;
 let isHurt = false;
@@ -19,10 +19,12 @@ let lastHurtStarted = 0;
 let currentCharacterImage = './img/pepe/I-1.png';
 let characterGraphicsRight = ['./img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png'];
 let characterGraphicsLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png'];
-let characterGraphicsJumpRight = ['./img/pepe/J-32.png', './img/pepe/J-33.png', './img/pepe/J-34.png', './img/pepe/J-35.png', './img/pepe/J-36.png', './img/pepe/J-37.png', './img/pepe/J-38.png'];
-let characterGraphicsJumpLeft = ['./img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-36.png', './img/pepe/JL-37.png', './img/pepe/JL-38.png'];
+let characterGraphicsJumpRight = ['./img/pepe/J-31.png', './img/pepe/J-32.png', './img/pepe/J-33.png', './img/pepe/J-34.png', './img/pepe/J-35.png', './img/pepe/J-36.png', './img/pepe/J-37.png', './img/pepe/J-38.png', './img/pepe/J-38.png'];
+let characterGraphicsJumpLeft = ['./img/pepe/JL-31.png', './img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-36.png', './img/pepe/JL-37.png', './img/pepe/JL-38.png', './img/pepe/JL-39.png'];
 let characterGraphicsHurtRight = ['./img/pepe/D-51.png', './img/pepe/D-52.png', './img/pepe/D-53.png', './img/pepe/D-54.png', './img/pepe/D-55.png', './img/pepe/D-56.png', './img/pepe/D-51.png', './img/pepe/D-52.png'];
+let characterGraphicsHurtLeft = ['./img/pepe/DL-51.png', './img/pepe/DL-52.png', './img/pepe/DL-53.png', './img/pepe/DL-54.png', './img/pepe/DL-55.png', './img/pepe/DL-56.png', './img/pepe/DL-51.png', './img/pepe/DL-52.png'];
 let characterGraphicIndex = 0;
+let characterHurtGraphicIndex = 0;
 let cloudOffset = 0;
 let chickens = [];
 let currentChickenImage = './img/chicken/chicken1.png';
@@ -70,7 +72,7 @@ let soundIsOff = false;
 // -------------------------Game config-------------------------
 
 let JUMP_TIME = 300; // in ms
-let HURT_TIME = 700;
+let HURT_TIME = 1000;
 let GAME_SPEED = 7;
 let BOSS_POSITION = 5000;
 let AUDIO_RUNNING = new Audio('audio/running.mp3');
@@ -117,6 +119,8 @@ function checkForCollision() {
 
   setInterval(function () {
 
+    let timePassedSinceHurt = new Date().getTime() - lastHurtStarted;
+
     //Check hen collision
     for (let index = 0; index < hens.length; index++) {
       let hen = hens[index];
@@ -125,13 +129,15 @@ function checkForCollision() {
       if ((hen_x - 40) < character_x && (hen_x + 40) > character_x) {
         if (character_y > 110) {
           if (character_energy > 0) {
-            character_energy -= 10;
+            if (timePassedSinceHurt > 2 * HURT_TIME) {
+              isHurt = true;
+              AUDIO_HURT.play();
+              lastHurtStarted = new Date().getTime();
 
-            isHurt = true;
-            AUDIO_HURT.play();
-            lastHurtStarted = new Date().getTime();
-
-
+              setTimeout(function () {
+                character_energy -= 10;
+              }, 1000);
+            }
           } else {
             character_lost_at = new Date().getTime();
             game_finished = true;
@@ -152,12 +158,16 @@ function checkForCollision() {
       if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x) {
         if (character_y > 110) {
           if (character_energy > 0) {
-            character_energy -= 10;
+            if (timePassedSinceHurt > 2 * HURT_TIME) {
+              isHurt = true;
+              AUDIO_HURT.play();
+              lastHurtStarted = new Date().getTime();
 
-            isHurt = true;
-            AUDIO_HURT.play();
-            lastHurtStarted = new Date().getTime();
+              setTimeout(function () {
+                character_energy -= 10;
+              }, 1000);
 
+            }
           } else {
             character_lost_at = new Date().getTime();
             game_finished = true;
@@ -185,12 +195,15 @@ function checkForCollision() {
     if ((boss_x - 80) < character_x && (boss_x + 80) > character_x) {
       if (character_y > 10) {
         if (character_energy > 0) {
-          character_energy -= 10;
+          if (timePassedSinceHurt > 2 * HURT_TIME) {
+            isHurt = true;
+            AUDIO_HURT.play();
+            lastHurtStarted = new Date().getTime();
 
-          isHurt = true;
-          AUDIO_HURT.play();
-          lastHurtStarted = new Date().getTime();
-
+            setTimeout(function () {
+              character_energy -= 10;
+            }, 1000);
+          }
 
         } else {
           character_lost_at = new Date().getTime();
@@ -313,20 +326,22 @@ function checkForRunning() {
 
 function checkForJump() {
 
+  let index;
+
   setInterval(function () {
 
-    let index;
-    let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
+    let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
     //Jump right
 
     if (isJumping && isFacingRight) {
-      if (timePassedSinceJump < 2 * JUMP_TIME) {
-        index = characterGraphicIndex % characterGraphicsJumpRight.length;
-      } else {
+      if (index == 8) {
+        isJumping = false;
         index = 0;
         characterGraphicIndex = 0;
+        currentCharacterImage = './img/pepe/I-1.png';
       }
+      index = characterGraphicIndex % characterGraphicsJumpRight.length;
       currentCharacterImage = characterGraphicsJumpRight[index];
       characterGraphicIndex = characterGraphicIndex + 1;
     }
@@ -334,12 +349,13 @@ function checkForJump() {
     //Jump left 
 
     if (isJumping && isFacingLeft) {
-      if (timePassedSinceJump < 2 * JUMP_TIME) {
-        index = characterGraphicIndex % characterGraphicsJumpLeft.length;
-      } else {
+      if (index == 8) {
+        isJumping = false;
         index = 0;
         characterGraphicIndex = 0;
+        currentCharacterImage = './img/pepe/I-1.png';
       }
+      index = characterGraphicIndex % characterGraphicsJumpLeft.length;
       currentCharacterImage = characterGraphicsJumpLeft[index];
       characterGraphicIndex = characterGraphicIndex + 1;
     }
@@ -353,11 +369,33 @@ function checkIfHurt() {
   setInterval(function () {
 
     if (isHurt && isFacingRight) {
-      index = characterGraphicIndex % characterGraphicsHurtRight.length;
-      currentCharacterImage = characterGraphicsHurtRight[index];
-      characterGraphicIndex = characterGraphicIndex + 1;
+      if (index == 7) {
+        currentCharacterImage = './img/pepe/I-1.png';
+        isHurt = false;
+        index = 0;
+        characterHurtGraphicIndex = 0;
 
+      } else {
+        index = characterHurtGraphicIndex % characterGraphicsHurtRight.length;
+        currentCharacterImage = characterGraphicsHurtRight[index];
+        characterHurtGraphicIndex = characterHurtGraphicIndex + 1;
+      }
     }
+
+    if (isHurt && isFacingLeft) {
+      if (index == 7) {
+        currentCharacterImage = './img/pepe/IL-1.png';
+        isHurt = false;
+        index = 0;
+        characterHurtGraphicIndex = 0;
+
+      } else {
+        index = characterHurtGraphicIndex % characterGraphicsHurtLeft.length;
+        currentCharacterImage = characterGraphicsHurtLeft[index];
+        characterHurtGraphicIndex = characterHurtGraphicIndex + 1;
+      }
+    }
+
   }, 100);
 }
 
@@ -656,7 +694,7 @@ function updateCharacter() {
 
   let base_image = checkBackgroundImageCache(currentCharacterImage);
 
-  let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
+  let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
   if (timePassedSinceJump < JUMP_TIME) {
     character_y = character_y - 10;
   } else {
@@ -778,12 +816,10 @@ function listenForKeys() {
 
     let timePassedSinceHurt = new Date().getTime() - lastHurtStarted;
 
-    console.log(timePassedSinceHurt);
-
     if (k == 'ArrowRight') {
       isMovingRight = true;
-      
-      if( timePassedSinceHurt < HURT_TIME) {
+
+      if (timePassedSinceHurt < HURT_TIME) {
         isMovingRight = false;
       }
     }
@@ -791,12 +827,13 @@ function listenForKeys() {
     if (k == 'ArrowLeft') {
       isMovingLeft = true;
 
-      if( timePassedSinceHurt < HURT_TIME) {
+      if (timePassedSinceHurt < HURT_TIME) {
         isMovingLeft = false;
       }
     }
 
     if (k == 'd' && collectedBottles > 0) {
+
       let passedTime = new Date().getTime() - bottleThrowTime;
 
       if (passedTime > 1000) {
@@ -806,16 +843,13 @@ function listenForKeys() {
       }
     }
 
-    let timePassedSinceJump = new Date().getTime() - lasJumpStarted;
+    let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
     if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2) {
       isJumping = true;
       AUDIO_JUMP.play();
-      lasJumpStarted = new Date().getTime();
+      lastJumpStarted = new Date().getTime();
 
-      setTimeout(function () {
-        isJumping = false;
-      }, 700);
     }
 
   });
@@ -858,7 +892,7 @@ function turnMusicOff() {
 
 }
 
-function turnVolumeOff() {
+function turnSoundOff() {
 
   document.addEventListener("keydown", e => {
 
@@ -872,6 +906,7 @@ function turnVolumeOff() {
       AUDIO_THROW.muted = true;
       AUDIO_WIN.muted = true;
       AUDIO_RUNNING.muted = true;
+      AUDIO_HURT.muted = true;
 
       setTimeout(function () {
         soundIsOn = false;
@@ -889,6 +924,7 @@ function turnVolumeOff() {
       AUDIO_THROW.muted = false;
       AUDIO_WIN.muted = false;
       AUDIO_RUNNING.muted = false;
+      AUDIO_HURT.muted = false;
 
       setTimeout(function () {
         soundIsOn = true;
