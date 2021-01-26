@@ -15,14 +15,18 @@ let lastJumpStarted = 0;
 let isFacingRight = true;
 let isFacingLeft = false;
 let isHurt = false;
+let isDead = false;
 let lastHurtStarted = 0;
+let timePassedSinceHurt = 0;
 let currentCharacterImage = './img/pepe/I-1.png';
 let characterGraphicsRight = ['./img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png'];
 let characterGraphicsLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png'];
 let characterGraphicsJumpRight = ['./img/pepe/J-31.png', './img/pepe/J-32.png', './img/pepe/J-33.png', './img/pepe/J-34.png', './img/pepe/J-35.png', './img/pepe/J-36.png', './img/pepe/J-37.png', './img/pepe/J-38.png', './img/pepe/J-38.png'];
 let characterGraphicsJumpLeft = ['./img/pepe/JL-31.png', './img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-36.png', './img/pepe/JL-37.png', './img/pepe/JL-38.png', './img/pepe/JL-39.png'];
-let characterGraphicsHurtRight = ['./img/pepe/D-51.png', './img/pepe/D-52.png', './img/pepe/D-53.png', './img/pepe/D-54.png', './img/pepe/D-55.png', './img/pepe/D-56.png', './img/pepe/D-51.png', './img/pepe/D-52.png'];
-let characterGraphicsHurtLeft = ['./img/pepe/DL-51.png', './img/pepe/DL-52.png', './img/pepe/DL-53.png', './img/pepe/DL-54.png', './img/pepe/DL-55.png', './img/pepe/DL-56.png', './img/pepe/DL-51.png', './img/pepe/DL-52.png'];
+let characterGraphicsHurtRight = ['./img/pepe/D-51.png', './img/pepe/D-52.png', './img/pepe/D-53.png', './img/pepe/D-54.png', './img/pepe/D-55.png', './img/pepe/D-56.png'];
+let characterGraphicsHurtLeft = ['./img/pepe/DL-51.png', './img/pepe/DL-52.png', './img/pepe/DL-53.png', './img/pepe/DL-54.png', './img/pepe/DL-55.png', './img/pepe/DL-56.png'];
+let characterGraphicsDeadRight = ['./img/pepe/H-41.png', './img/pepe/H-42.png', './img/pepe/H-43.png', './img/pepe/J-40.png'];
+let characterGraphicsDeadLeft = ['./img/pepe/HL-41.png', './img/pepe/HL-42.png', './img/pepe/HL-43.png', './img/pepe/J-40.png'];
 let characterGraphicIndex = 0;
 let characterHurtGraphicIndex = 0;
 let cloudOffset = 0;
@@ -62,7 +66,6 @@ let thrownBottle_x = 0;
 let thrownBottel_y = 0;
 let bossDefeatedAt = 0;
 let game_finished = false;
-let character_lost_at = 0;
 
 let musicIsOn = true;
 let musicIsOff = false;
@@ -104,6 +107,7 @@ function loadGame() {
   checkForRunning();
   checkForJump();
   checkIfHurt();
+  checkIfDead();
   checkForChicken();
   checkForHens();
   checkForBoss();
@@ -118,8 +122,6 @@ function loadGame() {
 function checkForCollision() {
 
   setInterval(function () {
-
-    let timePassedSinceHurt = new Date().getTime() - lastHurtStarted;
 
     //Check hen collision
     for (let index = 0; index < hens.length; index++) {
@@ -139,14 +141,15 @@ function checkForCollision() {
               }, 1000);
             }
           } else {
-            character_lost_at = new Date().getTime();
-            game_finished = true;
+            isDead = true;
+            ishurt = false;
           }
         }
       }
 
-      if ((hen_x - 400) < character_x) {
-        AUDIO_HEN.play();
+      if ((hen_x - 200) < character_x && (hen_x + 200) > character_x) {
+          AUDIO_HEN.play();
+
       }
     }
 
@@ -169,8 +172,8 @@ function checkForCollision() {
 
             }
           } else {
-            character_lost_at = new Date().getTime();
-            game_finished = true;
+            isDead = true;
+            ishurt = false;
           }
         }
       }
@@ -206,8 +209,9 @@ function checkForCollision() {
           }
 
         } else {
-          character_lost_at = new Date().getTime();
-          game_finished = true;
+          isDead = true;
+          ishurt = false;
+
         }
       }
     }
@@ -330,8 +334,6 @@ function checkForJump() {
 
   setInterval(function () {
 
-    let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
-
     //Jump right
 
     if (isJumping && isFacingRight) {
@@ -364,12 +366,15 @@ function checkForJump() {
 }
 
 function checkIfHurt() {
+
   let index;
 
   setInterval(function () {
 
+
     if (isHurt && isFacingRight) {
-      if (index == 7) {
+
+      if (index == 5) {
         currentCharacterImage = './img/pepe/I-1.png';
         isHurt = false;
         index = 0;
@@ -383,7 +388,7 @@ function checkIfHurt() {
     }
 
     if (isHurt && isFacingLeft) {
-      if (index == 7) {
+      if (index == 5) {
         currentCharacterImage = './img/pepe/IL-1.png';
         isHurt = false;
         index = 0;
@@ -398,6 +403,40 @@ function checkIfHurt() {
 
   }, 100);
 }
+
+function checkIfDead() {
+
+  let index;
+
+  setInterval(function () {
+
+    if (isDead && isFacingRight) {
+
+      if (index == 3) {
+        game_finished = true;
+
+      } else {
+        index = characterGraphicIndex % characterGraphicsDeadRight.length;
+        currentCharacterImage = characterGraphicsDeadRight[index];
+        characterGraphicIndex = characterGraphicIndex + 1;
+      }
+    }
+
+    if (isDead && isFacingLeft) {
+      if (index == 3) {
+        game_finished = true;
+
+
+      } else {
+        index = characterGraphicIndex % characterGraphicsDeadLeft.length;
+        currentCharacterImage = characterGraphicsDeadLeft[index];
+        characterGraphicIndex = characterGraphicIndex + 1;
+      }
+    }
+
+  }, 100);
+}
+
 
 function checkForBottle() {
 
@@ -433,7 +472,7 @@ function drawFinalScreen() {
   ctx.font = '80px Bradley Hand ITC';
   let msg = 'YOU WON!';
 
-  if (character_lost_at > 0) {
+  if (isDead) {
     msg = 'YOU LOST!';
   }
   ctx.fillText(msg, 150, 200);
@@ -733,14 +772,15 @@ function drawClouds() {
 
 function drawSky() {
 
-  if (isMovingRight && bg_ground > -5500) {
+  timePassedSinceHurt = new Date().getTime() - lastHurtStarted;
+
+  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME) {
     bg_sky = bg_sky - GAME_SPEED;
   }
 
-  if (isMovingLeft && bg_ground < 500) {
+  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME) {
     bg_sky = bg_sky + GAME_SPEED;
   }
-
 
   for (let index = -2; index < 20; index++) {
     addBackgroundobject('./img/background/sky.png', index * 955, bg_sky, -80, 0.5);
@@ -750,11 +790,11 @@ function drawSky() {
 
 function drawHills() {
 
-  if (isMovingRight && bg_ground > -5500) {
+  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME) {
     bg_hills = bg_hills - (0.25 * GAME_SPEED);
   }
 
-  if (isMovingLeft && bg_ground < 500) {
+  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME) {
     bg_hills = bg_hills + (0.25 * GAME_SPEED);
   }
 
@@ -766,11 +806,11 @@ function drawHills() {
 
 function drawShadows() {
 
-  if (isMovingRight && bg_ground > -5500) {
+  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME) {
     bg_shadows = bg_shadows - (0.5 * GAME_SPEED);
   }
 
-  if (isMovingLeft && bg_ground < 500) {
+  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME) {
     bg_shadows = bg_shadows + (0.5 * GAME_SPEED);
   }
 
@@ -782,16 +822,15 @@ function drawShadows() {
 
 function drawGround() {
 
-  if (isMovingRight && bg_ground > -5500) {
+  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME) {
     bg_ground = bg_ground - GAME_SPEED;
   }
 
-  if (isMovingLeft && bg_ground < 500) {
+  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME) {
     bg_ground = bg_ground + GAME_SPEED;
   }
 
   // Draw ground
-
   for (let index = -2; index < 10; index++) {
     addBackgroundobject('./img/background/ground1.png', index * 1920, bg_ground, -90, 0.5);
   }
@@ -814,22 +853,12 @@ function listenForKeys() {
 
     const k = e.key;
 
-    let timePassedSinceHurt = new Date().getTime() - lastHurtStarted;
-
     if (k == 'ArrowRight') {
       isMovingRight = true;
-
-      if (timePassedSinceHurt < HURT_TIME) {
-        isMovingRight = false;
-      }
     }
 
     if (k == 'ArrowLeft') {
       isMovingLeft = true;
-
-      if (timePassedSinceHurt < HURT_TIME) {
-        isMovingLeft = false;
-      }
     }
 
     if (k == 'd' && collectedBottles > 0) {
@@ -856,13 +885,12 @@ function listenForKeys() {
 
   document.addEventListener("keyup", e => {
     const k = e.key;
+
     if (k == 'ArrowRight') {
-      // character_x = character_x + 5;
       isMovingRight = false;
     }
 
     if (k == 'ArrowLeft') {
-      // character_x = character_x - 5;
       isMovingLeft = false;
     }
   });
@@ -873,7 +901,8 @@ function turnMusicOff() {
   document.addEventListener("keydown", e => {
 
     if (e.key == 'm' && musicIsOn) {
-      AUDIO_BACKGROUND_MUSIC.pause();
+      AUDIO_BACKGROUND_MUSIC.muted = true;
+
       setTimeout(function () {
         musicIsOn = false;
         musicIsOff = true;
@@ -881,7 +910,8 @@ function turnMusicOff() {
     }
 
     if (e.key == 'm' && musicIsOff) {
-      AUDIO_BACKGROUND_MUSIC.play();
+      AUDIO_BACKGROUND_MUSIC.muted = false;
+
       setTimeout(function () {
         musicIsOn = true;
         musicIsOff = false;
@@ -907,6 +937,7 @@ function turnSoundOff() {
       AUDIO_WIN.muted = true;
       AUDIO_RUNNING.muted = true;
       AUDIO_HURT.muted = true;
+      AUDIO_BACKGROUND_MUSIC.muted = true;
 
       setTimeout(function () {
         soundIsOn = false;
@@ -925,6 +956,7 @@ function turnSoundOff() {
       AUDIO_WIN.muted = false;
       AUDIO_RUNNING.muted = false;
       AUDIO_HURT.muted = false;
+      AUDIO_BACKGROUND_MUSIC.muted = false;
 
       setTimeout(function () {
         soundIsOn = true;
@@ -934,4 +966,15 @@ function turnSoundOff() {
 
   });
 
+}
+
+function openFullscreen() {
+  if (canvas.requestFullscreen) {
+    canvas.requestFullscreen();
+  } else if (canvas.webkitRequestFullscreen) { /* Safari */
+    canvas.webkitRequestFullscreen();
+  } else if (canvas.msRequestFullscreen) { /* IE11 */
+    canvas.msRequestFullscreen();
+  }
+  loadGame() ;
 }

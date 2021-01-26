@@ -1,44 +1,48 @@
 body {
     font-family: "Bradley Hand ITC";
     background-color: #545454;
-}
-
-.canvas-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-}
-
-h1 {
     color: white;
 }
 
-.button-position{
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
+.canvas-container {
+    width: 820px;
+    height: 450px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.button-position {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 button {
- background-color: gold;
- font-family: "Bradley Hand ITC";
- height: 50px;
- width: 150px;
- font-size: 30px;
- font-weight: bold;
+    position: absolute;
+    background-color: gold;
+    font-family: "Bradley Hand ITC";
+    height: 50px;
+    width: 150px;
+    font-size: 30px;
+    font-weight: bold;
 }
 
 .d-none {
     display: none;
 }
 
-h3 {
-    color: white;
-    text-align: center;
+.expand-icon {
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    cursor: pointer;
+    z-index: 2;
 }

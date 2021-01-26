@@ -4,6 +4,8 @@ let imagePaths = ['./img/pepe/I-1.png', './img/pepe/W-21.png', './img/pepe/W-22.
     './img/pepe/JL-31.png', './img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-36.png', './img/pepe/JL-37.png', './img/pepe/JL-38.png', './img/pepe/JL-39.png',
     './img/pepe/D-51.png', './img/pepe/D-52.png', './img/pepe/D-53.png', './img/pepe/D-54.png', './img/pepe/D-55.png', './img/pepe/D-56.png',
     './img/pepe/DL-51.png', './img/pepe/DL-52.png', './img/pepe/DL-53.png', './img/pepe/DL-54.png', './img/pepe/DL-55.png', './img/pepe/DL-56.png',
+    './img/pepe/H-41.png', './img/pepe/H-42.png', './img/pepe/H-43.png',
+    './img/pepe/HL-41.png', './img/pepe/HL-42.png', './img/pepe/HL-43.png', './img/pepe/J-40.png',
     './img/chicken/chicken1.png', './img/chicken/chicken2.png', './img/chicken/chicken3.png',
     './img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png',
     './img/boss/G1.png', './img/boss/G2.png', './img/boss/G3.png', './img/boss/G4.png',

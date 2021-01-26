@@ -12,18 +12,18 @@
 
 <body onload="init(); turnMusicOff(); turnSoundOff()">
 
-    <div class="canvas-container">
+    <h1>El Pollo Loco</h1>
 
-        <h1>El Pollo Loco</h1>
+    <div class="canvas-container" id="canvasContainer">
 
         <canvas id="canvas" width="820" height="450"></canvas>
-    </div>
-    <h3>Run: Arrow right/left | Jump: space-bar | Throw bottles: d</h3>
-    <h3>Music on/off: m | Sounds on/off: v</h3>
 
-    <div id="start-button" class="button-position">
-        <button onclick="loadGame()">Start</button>
+        <button id="start-button" class="button-position" onclick="loadGame()">Start</button>
+
+        <img class="expand-icon" src="img/expand-32.ico" onclick="openFullscreen()">
     </div>
+
+    <h3>Run: Arrow right/left | Jump: space-bar | Throw bottles: d | Music on/off: m | Sound on/off: v</h3>
 
 </body>
 
