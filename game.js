@@ -18,9 +18,11 @@ let isHurt = false;
 let isDead = false;
 let lastHurtStarted = 0;
 let timePassedSinceHurt = 0;
+let deadStarted = 0;
+let timePassedSinceDead = 0;
 let currentCharacterImage = './img/pepe/I-1.png';
-let characterGraphicsRight = ['./img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png'];
-let characterGraphicsLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png'];
+let characterGraphicsWalkRight = ['./img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png'];
+let characterGraphicsWalkLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png'];
 let characterGraphicsJumpRight = ['./img/pepe/J-31.png', './img/pepe/J-32.png', './img/pepe/J-33.png', './img/pepe/J-34.png', './img/pepe/J-35.png', './img/pepe/J-36.png', './img/pepe/J-37.png', './img/pepe/J-38.png', './img/pepe/J-38.png'];
 let characterGraphicsJumpLeft = ['./img/pepe/JL-31.png', './img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-36.png', './img/pepe/JL-37.png', './img/pepe/JL-38.png', './img/pepe/JL-39.png'];
 let characterGraphicsHurtRight = ['./img/pepe/D-51.png', './img/pepe/D-52.png', './img/pepe/D-53.png', './img/pepe/D-54.png', './img/pepe/D-55.png', './img/pepe/D-56.png'];
@@ -75,7 +77,8 @@ let soundIsOff = false;
 // -------------------------Game config-------------------------
 
 let JUMP_TIME = 300; // in ms
-let HURT_TIME = 1000;
+let HURT_TIME = 700;
+let DEAD_TIME = 500;
 let GAME_SPEED = 7;
 let BOSS_POSITION = 5000;
 let AUDIO_RUNNING = new Audio('audio/running.mp3');
@@ -135,20 +138,18 @@ function checkForCollision() {
               isHurt = true;
               AUDIO_HURT.play();
               lastHurtStarted = new Date().getTime();
-
-              setTimeout(function () {
-                character_energy -= 10;
-              }, 1000);
+              character_energy -= 10;
             }
           } else {
             isDead = true;
             ishurt = false;
+            deadStarted = new Date().getTime();
           }
         }
       }
 
       if ((hen_x - 200) < character_x && (hen_x + 200) > character_x) {
-          AUDIO_HEN.play();
+        AUDIO_HEN.play();
 
       }
     }
@@ -165,15 +166,12 @@ function checkForCollision() {
               isHurt = true;
               AUDIO_HURT.play();
               lastHurtStarted = new Date().getTime();
-
-              setTimeout(function () {
-                character_energy -= 10;
-              }, 1000);
-
+              character_energy -= 10;
             }
           } else {
             isDead = true;
             ishurt = false;
+            deadStarted = new Date().getTime();
           }
         }
       }
@@ -202,15 +200,12 @@ function checkForCollision() {
             isHurt = true;
             AUDIO_HURT.play();
             lastHurtStarted = new Date().getTime();
-
-            setTimeout(function () {
-              character_energy -= 10;
-            }, 1000);
+            character_energy -= 10;
           }
-
         } else {
           isDead = true;
           ishurt = false;
+          deadStarted = new Date().getTime();
 
         }
       }
@@ -307,8 +302,8 @@ function checkForRunning() {
       isFacingRight = true;
       isFacingLeft = false;
       AUDIO_RUNNING.play();
-      let index = characterGraphicIndex % characterGraphicsRight.length; //Schleife, die sich undendlich wiederholt
-      currentCharacterImage = characterGraphicsRight[index];
+      let index = characterGraphicIndex % characterGraphicsWalkRight.length; //Schleife, die sich undendlich wiederholt
+      currentCharacterImage = characterGraphicsWalkRight[index];
       characterGraphicIndex = characterGraphicIndex + 1;
     }
 
@@ -316,8 +311,8 @@ function checkForRunning() {
       isFacingRight = false;
       isFacingLeft = true;
       AUDIO_RUNNING.play();
-      let index = characterGraphicIndex % characterGraphicsLeft.length;
-      currentCharacterImage = characterGraphicsLeft[index];
+      let index = characterGraphicIndex % characterGraphicsWalkLeft.length;
+      currentCharacterImage = characterGraphicsWalkLeft[index];
       characterGraphicIndex = characterGraphicIndex + 1;
     }
 
@@ -412,26 +407,24 @@ function checkIfDead() {
 
     if (isDead && isFacingRight) {
 
-      if (index == 3) {
+      setTimeout(function () {
         game_finished = true;
+      }, DEAD_TIME);
 
-      } else {
-        index = characterGraphicIndex % characterGraphicsDeadRight.length;
-        currentCharacterImage = characterGraphicsDeadRight[index];
-        characterGraphicIndex = characterGraphicIndex + 1;
-      }
+      index = characterGraphicIndex % characterGraphicsDeadRight.length;
+      currentCharacterImage = characterGraphicsDeadRight[index];
+      characterGraphicIndex = characterGraphicIndex + 1;
     }
 
     if (isDead && isFacingLeft) {
-      if (index == 3) {
+
+      setTimeout(function () {
         game_finished = true;
+      }, DEAD_TIME);
 
-
-      } else {
-        index = characterGraphicIndex % characterGraphicsDeadLeft.length;
-        currentCharacterImage = characterGraphicsDeadLeft[index];
-        characterGraphicIndex = characterGraphicIndex + 1;
-      }
+      index = characterGraphicIndex % characterGraphicsDeadLeft.length;
+      currentCharacterImage = characterGraphicsDeadLeft[index];
+      characterGraphicIndex = characterGraphicIndex + 1;
     }
 
   }, 100);
@@ -754,12 +747,14 @@ function drawBackground() {
   ctx.fillStyle = "white";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  timePassedSinceHurt = new Date().getTime() - lastHurtStarted;
+  timePassedSinceDead = new Date().getTime() - deadStarted;
+
   drawSky();
   drawHills();
   drawClouds();
   drawShadows();
   drawGround();
-
 }
 
 function drawClouds() {
@@ -772,29 +767,17 @@ function drawClouds() {
 
 function drawSky() {
 
-  timePassedSinceHurt = new Date().getTime() - lastHurtStarted;
-
-  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME) {
-    bg_sky = bg_sky - GAME_SPEED;
-  }
-
-  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME) {
-    bg_sky = bg_sky + GAME_SPEED;
-  }
-
-  for (let index = -2; index < 20; index++) {
-    addBackgroundobject('./img/background/sky.png', index * 955, bg_sky, -80, 0.5);
-  }
+  addBackgroundobject('./img/background/sky.png', 0 , 0, -80, 0.5);
 
 }
 
 function drawHills() {
 
-  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME) {
+  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME && timePassedSinceDead > DEAD_TIME) {
     bg_hills = bg_hills - (0.25 * GAME_SPEED);
   }
 
-  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME) {
+  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME && timePassedSinceDead > DEAD_TIME) {
     bg_hills = bg_hills + (0.25 * GAME_SPEED);
   }
 
@@ -806,11 +789,11 @@ function drawHills() {
 
 function drawShadows() {
 
-  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME) {
+  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME && timePassedSinceDead > DEAD_TIME) {
     bg_shadows = bg_shadows - (0.5 * GAME_SPEED);
   }
 
-  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME) {
+  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME && timePassedSinceDead > DEAD_TIME) {
     bg_shadows = bg_shadows + (0.5 * GAME_SPEED);
   }
 
@@ -822,11 +805,11 @@ function drawShadows() {
 
 function drawGround() {
 
-  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME) {
+  if (isMovingRight && bg_ground > -5500 && timePassedSinceHurt > HURT_TIME && timePassedSinceDead > DEAD_TIME) {
     bg_ground = bg_ground - GAME_SPEED;
   }
 
-  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME) {
+  if (isMovingLeft && bg_ground < 500 && timePassedSinceHurt > HURT_TIME && timePassedSinceDead > DEAD_TIME) {
     bg_ground = bg_ground + GAME_SPEED;
   }
 
@@ -976,5 +959,5 @@ function openFullscreen() {
   } else if (canvas.msRequestFullscreen) { /* IE11 */
     canvas.msRequestFullscreen();
   }
-  loadGame() ;
+  loadGame();
 }
