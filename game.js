@@ -94,6 +94,7 @@ let AUDIO_BOTTLE = new Audio('audio/bottle.mp3');
 let AUDIO_THROW = new Audio('audio/throw.mp3');
 let AUDIO_GLASS = new Audio('audio/glass.mp3');
 let AUDIO_HEN = new Audio('audio/hen.mp3');
+let AUDIO_CRACK = new Audio('audio/crack.mp3');
 let AUDIO_FINAL_BOSS = new Audio('audio/final_boss.mp3');
 let AUDIO_FINAL_BOSS2 = new Audio('audio/final_boss2.mp3');
 let AUDIO_WIN = new Audio('audio/win.mp3');
@@ -139,7 +140,13 @@ function checkForCollision() {
       let hen = hens[index];
       let hen_x = hen.position_x + bg_ground;
 
-      if ((hen_x - 40) < character_x && (hen_x + 40) > character_x) {
+      if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead) {
+
+        if (character_y < 110) {
+          AUDIO_CRACK.play();
+          hen.dead = true;
+        }
+
         if (character_y > 110) {
           if (character_energy > 0) {
             if (timePassedSinceHurt > 2 * HURT_TIME) {
@@ -156,7 +163,7 @@ function checkForCollision() {
         }
       }
 
-      if ((hen_x - 200) < character_x && (hen_x + 200) > character_x) {
+      if ((hen_x - 200) < character_x && (hen_x + 200) > character_x && !hen.dead) {
         AUDIO_HEN.play();
 
       }
@@ -167,7 +174,13 @@ function checkForCollision() {
       let chicken = chickens[index];
       let chicken_x = chicken.position_x + bg_ground;
 
-      if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x) {
+      if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x && !chicken.dead) {
+
+        if (character_y < 110) {
+          AUDIO_CRACK.play();
+          chicken.dead = true;
+        }
+
         if (character_y > 110) {
           if (character_energy > 0) {
             if (timePassedSinceHurt > 2 * HURT_TIME) {
@@ -259,7 +272,10 @@ function calculateChickenPosition() {
   setInterval(function () {
     for (let index = 0; index < chickens.length; index++) {
       let chicken = chickens[index];
-      chicken.position_x = chicken.position_x - chicken.speed;
+
+      if (!chicken.dead) {
+        chicken.position_x = chicken.position_x - chicken.speed;
+      }
 
     }
   }, 50);
@@ -271,7 +287,10 @@ function calculateHenPosition() {
   setInterval(function () {
     for (let index = 0; index < hens.length; index++) {
       let hen = hens[index];
-      hen.position_x = hen.position_x - hen.speed;
+
+      if (!hen.dead) {
+        hen.position_x = hen.position_x - hen.speed;
+      }
 
     }
   }, 50);
@@ -657,19 +676,33 @@ function drawEnergyBar() {
 function drawChicken() {
   for (let i = 0; i < chickens.length; i++) {
     let chicken = chickens[i];
-    addBackgroundobject(currentChickenImage, chicken.position_x, bg_ground, chicken.position_y, chicken.scale, 1);
+    let image = currentChickenImage;
+
+    if (chicken.dead) {
+      image = 'img/chicken/chicken_dead.png';
+    }
+
+    addBackgroundobject(image, chicken.position_x, bg_ground, chicken.position_y, chicken.scale, 1);
   }
 }
+
 
 function drawHen() {
   for (let i = 0; i < hens.length; i++) {
     let hen = hens[i];
-    addBackgroundobject(currentHenImage, hen.position_x, bg_ground, hen.position_y, hen.scale, 1);
+    let image = currentHenImage;
+
+    if (hen.dead) {
+      image = 'img/chicken/hen_dead.png';
+    }
+
+    addBackgroundobject(image, hen.position_x, bg_ground, hen.position_y, hen.scale, 1);
   }
 }
 
 function checkForChicken() {
   setInterval(function () {
+
     let index = chickenGraphicIndex % chickenGraphics.length; //Schleife, die sich undendlich wiederholt
     currentChickenImage = chickenGraphics[index];
     chickenGraphicIndex = chickenGraphicIndex + 1;
@@ -679,6 +712,7 @@ function checkForChicken() {
 
 function checkForHens() {
   setInterval(function () {
+
     let index = hensGraphicIndex % hensGraphics.length; //Schleife, die sich undendlich wiederholt
     currentHenImage = hensGraphics[index];
     hensGraphicIndex = hensGraphicIndex + 1;
@@ -815,7 +849,8 @@ function createChicken(position_x) {
     'position_x': position_x,
     'position_y': 325,
     'scale': 0.28,
-    'speed': (Math.random() * 6) + 1
+    'speed': (Math.random() * 6) + 1,
+    'dead': false
   };
 }
 
