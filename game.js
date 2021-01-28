@@ -8,13 +8,13 @@ let bg_ground = 0;
 let bg_sky = 0;
 let bg_hills = 0;
 let bg_shadows = 0;
-let isStanding = true;
 let isMovingRight = false;
 let isMovingLeft = false;
 let isJumping = false;
 let lastJumpStarted = 0;
 let isFacingRight = true;
 let isFacingLeft = false;
+let isSleeping = false;
 let isHurt = false;
 let isDead = false;
 let lastStandStarted = 0;
@@ -67,13 +67,19 @@ let bossIsDead = false;
 let bottleGraphics = ['./img/bottle/bottle.png', './img/bottle/bottle3.png', './img/bottle/bottle4.png', './img/bottle/bottle5.png'];
 let currentBottleImage = './img/bottle/bottle.png';
 let bottleGraphicIndex = 0;
+let coinGraphics = ['img/coins/coin1.png', 'img/coins/coin2.png'];
+let currentCoinImage = 'img/coins/coin1.png';
+let coinGraphicIndex = 0;
 let placedBottles = [];
+let placedCoins = [];
 let collectedBottles = 0;
+let collectedCoins = 0;
 let bottleThrowTime = 0;
 let thrownBottle_x = 0;
 let thrownBottel_y = 0;
 let bossDefeatedAt = 0;
 let game_finished = false;
+let lastKeyPressed = 0;
 
 let musicIsOn = true;
 let musicIsOff = false;
@@ -86,11 +92,12 @@ let JUMP_TIME = 350; // in ms
 let HURT_TIME = 700;
 let DEAD_TIME = 500;
 let GAME_SPEED = 7;
-let BOSS_POSITION = 5000;
+let BOSS_POSITION = 4000;
 let AUDIO_RUNNING = new Audio('audio/running.mp3');
 let AUDIO_JUMP = new Audio('audio/jump.mp3');
 let AUDIO_HURT = new Audio('audio/hurt.mp3');
 let AUDIO_BOTTLE = new Audio('audio/bottle.mp3');
+let AUDIO_COIN = new Audio('audio/coin.mp3');
 let AUDIO_THROW = new Audio('audio/throw.mp3');
 let AUDIO_GLASS = new Audio('audio/glass.mp3');
 let AUDIO_HEN = new Audio('audio/hen.mp3');
@@ -113,9 +120,11 @@ function loadGame() {
   document.getElementById('start-button').classList.add('d-none');
   AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
-  createBottleList()
+  createBottleList();
+  createCoinList();
   createHenList();
   createCharacter();
+  checkForSleep();
   checkForRunning();
   checkForJump();
   checkIfHurt();
@@ -124,11 +133,14 @@ function loadGame() {
   checkForHens();
   checkForBoss();
   checkForBottle();
+  checkForCoin();
+  checkForCollision();
   calculateCloudOffset();
   listenForKeys();
   calculateChickenPosition();
   calculateHenPosition();
   checkForCollision();
+  lastKeyPressed = new Date().getTime()
 }
 
 function checkForCollision() {
@@ -140,14 +152,14 @@ function checkForCollision() {
       let hen = hens[index];
       let hen_x = hen.position_x + bg_ground;
 
-      if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead) {
+      if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead) {
 
-        if (character_y < 110) {
+        if (character_y < 130 && character_y > 110) {
           AUDIO_CRACK.play();
           hen.dead = true;
         }
 
-        if (character_y > 110) {
+        else if (character_y > 130) {
           if (character_energy > 0) {
             if (timePassedSinceHurt > 2 * HURT_TIME) {
               isHurt = true;
@@ -174,14 +186,14 @@ function checkForCollision() {
       let chicken = chickens[index];
       let chicken_x = chicken.position_x + bg_ground;
 
-      if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x && !chicken.dead) {
+      if ((chicken_x - 50) < character_x && (chicken_x + 50) > character_x && !chicken.dead) {
 
-        if (character_y < 110) {
+        if (character_y < 130 && character_y > 110) {
           AUDIO_CRACK.play();
           chicken.dead = true;
         }
 
-        if (character_y > 110) {
+        else if (character_y > 110) {
           if (character_energy > 0) {
             if (timePassedSinceHurt > 2 * HURT_TIME) {
               isHurt = true;
@@ -207,6 +219,20 @@ function checkForCollision() {
           placedBottles.splice(index, 1);
           AUDIO_BOTTLE.play();
           collectedBottles++;
+        }
+      }
+    }
+
+    //Check coin collect
+    for (let index = 0; index < placedCoins.length; index++) {
+      let coin_x = placedCoins[index]['position_x'] + bg_ground;
+      let coin_y = placedCoins[index]['position_y'];
+
+      if ((coin_x - 50) < character_x && (coin_x + 50) > character_x) {
+        if ((character_y + 50) > (coin_y - 20)  && (character_y - 50) < (coin_y - 20)) {
+          placedCoins.splice(index, 1);
+          AUDIO_COIN.play();
+          collectedCoins++;
         }
       }
     }
@@ -256,7 +282,7 @@ function checkForCollision() {
 
       }
     }
-  }, 125);
+  }, 100);
 }
 
 
@@ -325,58 +351,45 @@ function calculateCloudOffset() {
 function createCharacter() {
   setInterval(function () {
 
-    // let timePassedSinceStanding = new Date().getTime() - lastStandStarted;
-
-    // console.log('time passed ' + timePassedSinceStanding);
-    // console.log('last stand ' + lastStandStarted);
-    // console.log('is standing ' + isStanding);
-
-    if (isFacingRight && !isMovingRight && !isHurt && !isJumping) {
-      isStanding = true;
+    if (isFacingRight && !isMovingRight && !isMovingLeft && !isHurt && !isJumping) {
       let index = characterGraphicIndex % characterGraphicsStandRight.length;
       currentCharacterImage = characterGraphicsStandRight[index];
       characterGraphicIndex = characterGraphicIndex + 1;
 
-      // setTimeout(function() {
-      //   isStanding = false;
-      //   checkForSleeping();
-      // }, 3000);
-
     }
-    if (isFacingLeft && !isMovingRight && !isHurt && !isJumping) {
-      isStanding = true;
+    if (isFacingLeft && !isMovingRight && !isMovingLeft && !isHurt && !isJumping) {
       let index = characterGraphicIndex % characterGraphicsStandLeft.length;
       currentCharacterImage = characterGraphicsStandLeft[index];
       characterGraphicIndex = characterGraphicIndex + 1;
 
-      // setTimeout(function() {
-      //   isStanding = false;
-      //   checkForSleeping();
-      // }, 3000);
-    } else {
-      isStanding = false;
     }
-
   }, 125);
 }
 
-function checkForSleeping() {
+function checkForSleep() {
   setInterval(function () {
 
-    isSleeping = true;
+    let timePassed = (new Date().getTime() - lastKeyPressed);
 
-    if (isFacingRight) {
-      let index = characterGraphicIndex % characterGraphicsSleepRight.length;
-      currentCharacterImage = characterGraphicsSleepRight[index];
-      characterGraphicIndex = characterGraphicIndex + 1;
-    }
-    else if (isFacingLeft) {
-      let index = characterGraphicIndex % characterGraphicsSleepLeft.length;
-      currentCharacterImage = characterGraphicsSleepLeft[index];
-      characterGraphicIndex = characterGraphicIndex + 1;
-    }
-  }, 100);
+    if (lastKeyPressed != 0 && timePassed > 3000) {
 
+      isSleeping = true;
+
+      if (isFacingRight) {
+        let index = characterGraphicIndex % characterGraphicsSleepRight.length;
+        currentCharacterImage = characterGraphicsSleepRight[index];
+        characterGraphicIndex = characterGraphicIndex + 1;
+      }
+      else if (isFacingLeft) {
+        let index = characterGraphicIndex % characterGraphicsSleepLeft.length;
+        currentCharacterImage = characterGraphicsSleepLeft[index];
+        characterGraphicIndex = characterGraphicIndex + 1;
+      }
+    } else {
+      isSleeping = false;
+    }
+
+  }, 125);
 }
 
 function checkForRunning() {
@@ -385,6 +398,7 @@ function checkForRunning() {
     if (isMovingRight) {
       isFacingRight = true;
       isFacingLeft = false;
+      isSleeping = false;
       AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsWalkRight.length; //Schleife, die sich undendlich wiederholt
       currentCharacterImage = characterGraphicsWalkRight[index];
@@ -394,6 +408,7 @@ function checkForRunning() {
     if (isMovingLeft) {
       isFacingRight = false;
       isFacingLeft = true;
+      isSleeping = false;
       AUDIO_RUNNING.play();
       let index = characterGraphicIndex % characterGraphicsWalkLeft.length;
       currentCharacterImage = characterGraphicsWalkLeft[index];
@@ -538,7 +553,16 @@ function checkForBottle() {
     bottleGraphicIndex = bottleGraphicIndex + 1;
 
   }, 125);
+}
 
+function checkForCoin() {
+  setInterval(function () {
+
+    let index = coinGraphicIndex % coinGraphics.length;
+    currentCoinImage = coinGraphics[index];
+    coinGraphicIndex = coinGraphicIndex + 1;
+
+  }, 250);
 }
 
 function draw() {
@@ -551,8 +575,8 @@ function draw() {
     drawChicken();
     drawHen();
     drawBottles();
+    drawCoins();
     requestAnimationFrame(draw);
-    drawEnergyBar();
     drawInformation();
     drawThrowBottle();
   }
@@ -623,24 +647,93 @@ function drawThrowBottle() {
 }
 
 function drawInformation() {
+  drawBottleInformation();
+  drawCoinInformation();
+  drawEnergyInformation();
+}
 
-  let base_image = checkBackgroundImageCache('./img/bottle/bottle.png');
-  ctx.drawImage(base_image, 0, 5, base_image.width * 0.2, base_image.height * 0.2);
+
+function drawEnergyInformation() {
+
+  let base_image = checkBackgroundImageCache('./img/bars/live.png');
+  ctx.drawImage(base_image, 0, 0, base_image.width * 0.5, base_image.height * 0.5);
   ctx.globalAlpha = 1;
 
   ctx.font = '30px Bradley Hand ITC';
-  ctx.fillText('x' + collectedBottles, 40, 35);
+  ctx.fillText(character_energy/10, 75, 55);
+
 }
 
+
+function drawBottleInformation() {
+
+  let base_image = checkBackgroundImageCache('./img/bottle/bottle.png');
+  ctx.drawImage(base_image, 100, 5, base_image.width * 0.2, base_image.height * 0.2);
+  ctx.globalAlpha = 1;
+
+  ctx.font = '30px Bradley Hand ITC';
+  ctx.fillText(collectedBottles, 160, 55);
+}
+
+function drawCoinInformation() {
+
+  let base_image = checkBackgroundImageCache('./img/coins/coin1.png');
+  ctx.drawImage(base_image, 150, -30, base_image.width * 0.5, base_image.height * 0.5);
+  ctx.globalAlpha = 1;
+
+  ctx.font = '30px Bradley Hand ITC';
+  ctx.fillText(collectedCoins + '/20', 255, 55);
+
+}
+
+
 function drawBottles() {
-
-
-  [500, 1000, 1700, 2500, 2800, 3300];
 
   for (let index = 0; index < placedBottles.length; index++) {
     let bottle_x = placedBottles[index]['position_x'];
     let image = placedBottles[index]['image'];
     addBackgroundobject(image, bottle_x, bg_ground, 318, 0.2, 1);
+  }
+}
+
+function drawCoins() {
+
+  for (let index = 0; index < placedCoins.length; index++) {
+    let coin_x = placedCoins[index]['position_x'];
+    let coin_y = placedCoins[index]['position_y'];
+    addBackgroundobject(currentCoinImage, coin_x, bg_ground, coin_y, 0.5, 1);
+  }
+}
+
+function createCoinList() {
+  placedCoins = [
+    placedCoin(600, 200),
+    placedCoin(700, 150),
+    placedCoin(800, 100),
+    placedCoin(900, 150),
+    placedCoin(1000, 200),
+    placedCoin(2600, 200),
+    placedCoin(2700, 150),
+    placedCoin(2800, 100),
+    placedCoin(2900, 150),
+    placedCoin(3000, 200),
+    placedCoin(3600, 200),
+    placedCoin(3700, 150),
+    placedCoin(3800, 100),
+    placedCoin(3900, 150),
+    placedCoin(4000, 200),
+    placedCoin(3600, 200),
+    placedCoin(3700, 150),
+    placedCoin(3800, 100),
+    placedCoin(3900, 150),
+    placedCoin(4000, 200),
+  ];
+}
+
+function placedCoin(coin_x, coin_y) {
+  return {
+    'position_x': coin_x,
+    'position_y': coin_y,
   }
 }
 
@@ -661,17 +754,6 @@ function placedBottle(bottle_x, type) {
     'image': './img/bottle/bottle' + type + '.png'
   }
 }
-
-function drawEnergyBar() {
-  ctx.globalAlpha = 0.5;
-  ctx.fillStyle = "blue";
-  ctx.fillRect(500, 15, 2 * character_energy, 30);
-  ctx.globalAlpha = 0.2;
-  ctx.fillStyle = "black";
-  ctx.fillRect(495, 10, 210, 40);
-  ctx.globalAlpha = 1;
-}
-
 
 function drawChicken() {
   for (let i = 0; i < chickens.length; i++) {
@@ -970,15 +1052,18 @@ function listenForKeys() {
 
     if (k == 'ArrowRight') {
       isMovingRight = true;
+      lastKeyPressed = 0;
     }
 
     if (k == 'ArrowLeft') {
       isMovingLeft = true;
+      lastKeyPressed = 0;
     }
 
     if (k == 'd' && collectedBottles > 0) {
 
       let passedTime = new Date().getTime() - bottleThrowTime;
+      lastKeyPressed = 0;
 
       if (passedTime > 1000) {
         AUDIO_THROW.play();
@@ -990,10 +1075,10 @@ function listenForKeys() {
     let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
     if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2) {
+      lastKeyPressed = 0;
       isJumping = true;
       AUDIO_JUMP.play();
       lastJumpStarted = new Date().getTime();
-
     }
 
   });
@@ -1003,10 +1088,17 @@ function listenForKeys() {
 
     if (k == 'ArrowRight') {
       isMovingRight = false;
+      lastKeyPressed = new Date().getTime();
     }
-
     if (k == 'ArrowLeft') {
       isMovingLeft = false;
+      lastKeyPressed = new Date().getTime();
+    }
+    if (e.code == 'Space') {
+      lastKeyPressed = new Date().getTime();
+    }
+    if (k == 'd') {
+      lastKeyPressed = new Date().getTime();
     }
   });
 }
