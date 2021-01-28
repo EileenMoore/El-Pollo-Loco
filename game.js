@@ -14,6 +14,7 @@ let isJumping = false;
 let lastJumpStarted = 0;
 let isFacingRight = true;
 let isFacingLeft = false;
+let isFallingDown = false;
 let isSleeping = false;
 let isHurt = false;
 let isDead = false;
@@ -64,6 +65,9 @@ let bossIsAlerted = true;
 let bossIsAttacking = false;
 let bossIsHurt = false;
 let bossIsDead = false;
+let lastBossHurt = 0;
+let bossEnergyGraphics = ['./img/bars/bossenergy1.png', './img/bars/bossenergy2.png', './img/bars/bossenergy3.png', './img/bars/bossenergy4.png', './img/bars/bossenergy5.png', './img/bars/bossenergy6.png'];
+let currentBossEnergyImage = './img/bars/bossenergy1.png';
 let bottleGraphics = ['./img/bottle/bottle.png', './img/bottle/bottle3.png', './img/bottle/bottle4.png', './img/bottle/bottle5.png'];
 let currentBottleImage = './img/bottle/bottle.png';
 let bottleGraphicIndex = 0;
@@ -90,9 +94,10 @@ let soundIsOff = false;
 
 let JUMP_TIME = 350; // in ms
 let HURT_TIME = 700;
+let BOSS_HURT_TIME = 2000;
 let DEAD_TIME = 500;
 let GAME_SPEED = 7;
-let BOSS_POSITION = 4000;
+let BOSS_POSITION = 5000;
 let AUDIO_RUNNING = new Audio('audio/running.mp3');
 let AUDIO_JUMP = new Audio('audio/jump.mp3');
 let AUDIO_HURT = new Audio('audio/hurt.mp3');
@@ -116,8 +121,13 @@ function init() {
   draw();
 }
 
-function loadGame() {
+function showDescription() {
   document.getElementById('start-button').classList.add('d-none');
+  document.getElementById('level-description').classList.remove('d-none');
+}
+
+function loadGame() {
+  document.getElementById('level-description').classList.add('d-none');
   AUDIO_BACKGROUND_MUSIC.play();
   createChickenList();
   createBottleList();
@@ -132,6 +142,7 @@ function loadGame() {
   checkForChicken();
   checkForHens();
   checkForBoss();
+  checkBossEnergy();
   checkForBottle();
   checkForCoin();
   checkForCollision();
@@ -140,7 +151,8 @@ function loadGame() {
   calculateChickenPosition();
   calculateHenPosition();
   checkForCollision();
-  lastKeyPressed = new Date().getTime()
+  lastKeyPressed = new Date().getTime();
+  checkIfGameIsFinished();
 }
 
 function checkForCollision() {
@@ -152,14 +164,15 @@ function checkForCollision() {
       let hen = hens[index];
       let hen_x = hen.position_x + bg_ground;
 
-      if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead) {
+      if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead) {
 
-        if (character_y < 130 && character_y > 110) {
+        if (character_y < 130 && character_y > 110 && isFallingDown) {
           AUDIO_CRACK.play();
           hen.dead = true;
         }
-
-        else if (character_y > 130) {
+      }
+      if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead) {
+        if (character_y > 130) {
           if (character_energy > 0) {
             if (timePassedSinceHurt > 2 * HURT_TIME) {
               isHurt = true;
@@ -186,14 +199,15 @@ function checkForCollision() {
       let chicken = chickens[index];
       let chicken_x = chicken.position_x + bg_ground;
 
-      if ((chicken_x - 50) < character_x && (chicken_x + 50) > character_x && !chicken.dead) {
+      if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x && !chicken.dead) {
 
-        if (character_y < 130 && character_y > 110) {
+        if (character_y < 130 && character_y > 110 && isFallingDown) {
           AUDIO_CRACK.play();
           chicken.dead = true;
         }
-
-        else if (character_y > 110) {
+      }
+      if ((chicken_x - 50) < character_x && (chicken_x + 50) > character_x && !chicken.dead) {
+        if (character_y > 110) {
           if (character_energy > 0) {
             if (timePassedSinceHurt > 2 * HURT_TIME) {
               isHurt = true;
@@ -229,7 +243,7 @@ function checkForCollision() {
       let coin_y = placedCoins[index]['position_y'];
 
       if ((coin_x - 50) < character_x && (coin_x + 50) > character_x) {
-        if ((character_y + 50) > (coin_y - 20)  && (character_y - 50) < (coin_y - 20)) {
+        if ((character_y + 50) > (coin_y - 20) && (character_y - 50) < (coin_y - 20)) {
           placedCoins.splice(index, 1);
           AUDIO_COIN.play();
           collectedCoins++;
@@ -257,14 +271,26 @@ function checkForCollision() {
         }
       }
     }
+  }, 100);
+}
+
+
+function checkBossEnergy() {
+  let index = 0;
+
+  setInterval(function () {
 
     //Check final boss energy
-    if (thrownBottle_x > BOSS_POSITION + bg_ground - 100 && thrownBottle_x < BOSS_POSITION + bg_ground + 100) {
+    let timePassed = new Date().getTime() - lastBossHurt;
 
+    if (thrownBottle_x > BOSS_POSITION + bg_ground - 100 && thrownBottle_x < BOSS_POSITION + bg_ground + 100 && timePassed > BOSS_HURT_TIME) {
       if (final_boss_energy > 0) {
-        final_boss_energy = final_boss_energy - 10;
+        lastBossHurt = new Date().getTime();
+        final_boss_energy = final_boss_energy - 20;
         AUDIO_GLASS.play();
         bossIsHurt = true;
+        index++;
+        currentBossEnergyImage = bossEnergyGraphics[index];
 
         setTimeout(function () {
           AUDIO_FINAL_BOSS2.play();
@@ -275,21 +301,22 @@ function checkForCollision() {
         bossIsDead = true;
         AUDIO_FINAL_BOSS2.pause();
         AUDIO_FINAL_BOSS.play();
-
-        setTimeout(function () {
-          finishLevel();
-        }, 2000);
-
       }
     }
-  }, 100);
+  }, 200);
 }
 
 
-function finishLevel() {
+function checkIfGameIsFinished() {
 
-  AUDIO_WIN.play();
-  game_finished = true;
+  setInterval(function () {
+    let timePassed = new Date().getTime() - bossDefeatedAt;
+
+    if (timePassed > 2000 && collectedCoins == 20 && bossIsDead) {
+      AUDIO_WIN.play();
+      game_finished = true;
+    }
+  }, 100);
 
 }
 
@@ -569,7 +596,6 @@ function draw() {
   drawBackground();
   if (game_finished) {
     drawFinalScreen();
-    //Draw success screen
   } else {
     updateCharacter();
     drawChicken();
@@ -584,13 +610,20 @@ function draw() {
 }
 
 function drawFinalScreen() {
-  ctx.font = '80px Bradley Hand ITC';
-  let msg = 'YOU WON!';
+
+  document.getElementById('level-description').classList.remove('d-none');
+  AUDIO_WIN.muted = true;
+
+  document.getElementById('level-description').innerHTML = `
+  <h1>You won!</h1>
+  <button>Level 2</button>`
 
   if (isDead) {
-    msg = 'YOU LOST!';
+    document.getElementById('level-description').innerHTML = `
+ <h1>You lost!</h1>
+ <button onclick="restart()">Play again</button>`
   }
-  ctx.fillText(msg, 150, 200);
+
 }
 
 function drawFinalBoss() {
@@ -620,13 +653,8 @@ function drawFinalBoss() {
 
   addBackgroundobject(currentBossImage, chicken_x, bg_ground, chicken_y, 0.25, 1);
 
-  ctx.globalAlpha = 0.5;
-  ctx.fillStyle = "red";
-  ctx.fillRect(BOSS_POSITION - 30 + bg_ground, 75, 2 * final_boss_energy, 10);
-  ctx.globalAlpha = 0.2;
-  ctx.fillStyle = "black";
-  ctx.fillRect(BOSS_POSITION - 35 + bg_ground, 70, 210, 20);
-  ctx.globalAlpha = 1;
+  addBackgroundobject(currentBossEnergyImage, BOSS_POSITION - 30, bg_ground, 75, 0.4, 1);
+
 }
 
 function drawThrowBottle() {
@@ -659,8 +687,8 @@ function drawEnergyInformation() {
   ctx.drawImage(base_image, 0, 0, base_image.width * 0.5, base_image.height * 0.5);
   ctx.globalAlpha = 1;
 
-  ctx.font = '30px Bradley Hand ITC';
-  ctx.fillText(character_energy/10, 75, 55);
+  ctx.font = '30px Tahoma, Verdana, Segoe, sans-serif';
+  ctx.fillText(character_energy / 10, 75, 55);
 
 }
 
@@ -671,7 +699,7 @@ function drawBottleInformation() {
   ctx.drawImage(base_image, 100, 5, base_image.width * 0.2, base_image.height * 0.2);
   ctx.globalAlpha = 1;
 
-  ctx.font = '30px Bradley Hand ITC';
+  ctx.font = '30px Tahoma, Verdana, Segoe, sans-serif';
   ctx.fillText(collectedBottles, 160, 55);
 }
 
@@ -681,11 +709,9 @@ function drawCoinInformation() {
   ctx.drawImage(base_image, 150, -30, base_image.width * 0.5, base_image.height * 0.5);
   ctx.globalAlpha = 1;
 
-  ctx.font = '30px Bradley Hand ITC';
+  ctx.font = '30px Tahoma, Verdana, Segoe, sans-serif';
   ctx.fillText(collectedCoins + '/20', 255, 55);
-
 }
-
 
 function drawBottles() {
 
@@ -745,6 +771,7 @@ function createBottleList() {
     placedBottle(2500, 2),
     placedBottle(2800, 2),
     placedBottle(3300, 1),
+    placedBottle(3600, 2),
   ];
 }
 
@@ -949,11 +976,15 @@ function updateCharacter() {
 
     if (character_y < 150) {
       character_y = character_y + 7;
+      isFallingDown = true;
+
+      setTimeout(function () {
+        isFallingDown = false;
+      }, JUMP_TIME);
     }
   }
 
   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.2, base_image.height * 0.2);
-
 }
 
 function drawBackground() {
@@ -1103,6 +1134,11 @@ function listenForKeys() {
   });
 }
 
+function restart() {
+  location.reload();
+  loadGame();
+}
+
 function turnMusicOff() {
 
   document.addEventListener("keydown", e => {
@@ -1144,6 +1180,8 @@ function turnSoundOff() {
       AUDIO_WIN.muted = true;
       AUDIO_RUNNING.muted = true;
       AUDIO_HURT.muted = true;
+      AUDIO_CRACK.muted = true;
+      AUDIO_COIN.muted = true;
       AUDIO_BACKGROUND_MUSIC.muted = true;
 
       setTimeout(function () {
@@ -1163,6 +1201,8 @@ function turnSoundOff() {
       AUDIO_WIN.muted = false;
       AUDIO_RUNNING.muted = false;
       AUDIO_HURT.muted = false;
+      AUDIO_CRACK.muted = false;
+      AUDIO_COIN.muted = false;
       AUDIO_BACKGROUND_MUSIC.muted = false;
 
       setTimeout(function () {

@@ -21,7 +21,8 @@ let imagePaths = [
     './img/background/sky.png', './img/background/clouds.png',
     './img/background/ground1.png', './img/background/ground2.png', './img/background/ground3.png',
     './img/bottle/bottle.png', './img/bottle/bottle1.png', './img/bottle/bottle2.png', './img/bottle/bottle3.png', './img/bottle/bottle4.png', './img/bottle/bottle5.png',
-    'img/coins/coin1.png', 'img/coins/coin2.png', './img/bars/live.png'
+    'img/coins/coin1.png', 'img/coins/coin2.png', './img/bars/live.png',
+    './img/bars/bossenergy1.png', './img/bars/bossenergy2.png', './img/bars/bossenergy3.png', './img/bars/bossenergy4.png', './img/bars/bossenergy5.png', './img/bars/bossenergy6.png'
 ];
 
 let images = [];

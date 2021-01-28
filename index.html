@@ -18,12 +18,18 @@
 
         <canvas id="canvas" width="820" height="450"></canvas>
 
-        <button id="start-button" class="button-position" onclick="loadGame()">Start</button>
+        <button id="start-button" class="button-position" onclick="showDescription()">Start</button>
+
+        <div id="level-description" class="level-description d-none">
+            <h2>LEVEL 1</h2>
+            <span>Collect all coins and kill the chicken boss with the tabasco bottles!</span>
+            <button onclick="loadGame()">OK</button>
+        </div>
 
         <img class="expand-icon" src="img/expand-32.ico" onclick="openFullscreen()">
     </div>
 
-    <h3>Run: Arrow right/left | Jump: space-bar | Throw Tasbasco: d | Music on/off: m | Sound on/off: v</h3>
+    <h4>Run: Arrow right/left | Jump: space-bar | Throw Tasbasco: d | Music on/off: m | Sound on/off: v</h3>
 
 </body>
 
