@@ -12,7 +12,7 @@
 
 <body onload="init(); turnMusicOff(); turnSoundOff()">
 
-    <h1>El Pollo Loco</h1>
+    <h1 class="headline">El Pollo Loco</h1>
 
     <div class="canvas-container" id="canvasContainer">
 
@@ -26,10 +26,15 @@
             <button onclick="loadGame()">OK</button>
         </div>
 
+        <div class="fullscreen-window"> 
+           <span>Please activate the fullscreen mode!</span> 
+           <button>OK</button>
+        </div>
+
         <img class="expand-icon" src="img/expand-32.ico" onclick="openFullscreen()">
     </div>
 
-    <h4>Run: Arrow right/left | Jump: space-bar | Throw Tasbasco: d | Music on/off: m | Sound on/off: v</h3>
+    <h4 class="description">Run: Arrow right/left | Jump: space-bar | Throw Tasbasco: d | Music on/off: m | Sound on/off: v</h3>
 
 </body>
 

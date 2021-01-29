@@ -165,30 +165,24 @@ function checkForCollision() {
       let hen = hens[index];
       let hen_x = hen.position_x + bg_ground;
 
-      if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead) {
-
-        if (character_y < 130 && character_y > 110 && isFallingDown) {
-          AUDIO_CRACK.play();
-          hen.dead = true;
-        }
+      if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead && character_y > 110 && isFallingDown) {
+        AUDIO_CRACK.play();
+        hen.dead = true;
       }
-      if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead) {
-        if (character_y > 130) {
-          if (character_energy > 0) {
-            if (timePassedSinceHurt > 2 * HURT_TIME) {
-              isHurt = true;
-              AUDIO_HURT.play();
-              lastHurtStarted = new Date().getTime();
-              character_energy -= 10;
-            }
-          } else {
-            isDead = true;
-            ishurt = false;
-            deadStarted = new Date().getTime();
+      if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead && character_y > 130) {
+        if (character_energy > 0) {
+          if (timePassedSinceHurt > 2 * HURT_TIME) {
+            isHurt = true;
+            AUDIO_HURT.play();
+            lastHurtStarted = new Date().getTime();
+            character_energy -= 10;
           }
+        } else {
+          isDead = true;
+          ishurt = false;
+          deadStarted = new Date().getTime();
         }
       }
-
       if ((hen_x - 200) < character_x && (hen_x + 200) > character_x && !hen.dead) {
         AUDIO_HEN.play();
 
@@ -200,27 +194,22 @@ function checkForCollision() {
       let chicken = chickens[index];
       let chicken_x = chicken.position_x + bg_ground;
 
-      if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x && !chicken.dead) {
-
-        if (character_y < 130 && character_y > 110 && isFallingDown) {
-          AUDIO_CRACK.play();
-          chicken.dead = true;
-        }
+      if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x && !chicken.dead && character_y > 110 && isFallingDown) {
+        AUDIO_CRACK.play();
+        chicken.dead = true;
       }
-      if ((chicken_x - 50) < character_x && (chicken_x + 50) > character_x && !chicken.dead) {
-        if (character_y > 110) {
-          if (character_energy > 0) {
-            if (timePassedSinceHurt > 2 * HURT_TIME) {
-              isHurt = true;
-              AUDIO_HURT.play();
-              lastHurtStarted = new Date().getTime();
-              character_energy -= 10;
-            }
-          } else {
-            isDead = true;
-            ishurt = false;
-            deadStarted = new Date().getTime();
+      if ((chicken_x - 50) < character_x && (chicken_x + 50) > character_x && !chicken.dead && character_y > 110) {
+        if (character_energy > 0) {
+          if (timePassedSinceHurt > 2 * HURT_TIME) {
+            isHurt = true;
+            AUDIO_HURT.play();
+            lastHurtStarted = new Date().getTime();
+            character_energy -= 10;
           }
+        } else {
+          isDead = true;
+          ishurt = false;
+          deadStarted = new Date().getTime();
         }
       }
     }
@@ -255,21 +244,16 @@ function checkForCollision() {
     //Check final boss collision
     let boss_x = BOSS_POSITION + bg_ground;
 
-    if ((boss_x - 80) < character_x && (boss_x + 80) > character_x) {
-      if (character_y > 10) {
-        if (character_energy > 0) {
-          if (timePassedSinceHurt > 2 * HURT_TIME && !bossIsDead) {
-            isHurt = true;
-            AUDIO_HURT.play();
-            lastHurtStarted = new Date().getTime();
-            character_energy -= 10;
-          }
-        } else {
-          isDead = true;
-          ishurt = false;
-          deadStarted = new Date().getTime();
-
-        }
+    if ((boss_x - 80) < character_x && (boss_x + 80) > character_x && character_y > 10) {
+      if (character_energy > 0 && timePassedSinceHurt > 2 * HURT_TIME && !bossIsDead) {
+        isHurt = true;
+        AUDIO_HURT.play();
+        lastHurtStarted = new Date().getTime();
+        character_energy -= 10;
+      } else {
+        isDead = true;
+        ishurt = false;
+        deadStarted = new Date().getTime();
       }
     }
   }, 100);
@@ -283,7 +267,7 @@ function checkBossEnergy() {
 
     //Check final boss energy
 
-    if (thrownBottle_x > (BOSS_POSITION + bg_ground) - 100 && thrownBottle_x < (BOSS_POSITION + bg_ground) + 100 && thrownBottel_y > 50) {
+    if (thrownBottle_x > BOSS_POSITION + bg_ground - 100 && thrownBottle_x < BOSS_POSITION + bg_ground + 100 && thrownBottel_y > 50) {
       if (final_boss_energy > 0 && !bossIsHurt) {
         final_boss_energy = final_boss_energy - 20;
         AUDIO_GLASS.play();
@@ -296,7 +280,7 @@ function checkBossEnergy() {
           AUDIO_FINAL_BOSS2.play();
         }, 500);
 
-      } 
+      }
       if (final_boss_energy == 0) {
         bossDefeatedAt = new Date().getTime();
         bossIsDead = true;
@@ -304,7 +288,7 @@ function checkBossEnergy() {
         AUDIO_FINAL_BOSS.play();
       }
     }
-  }, 100);
+  }, 50);
 }
 
 
@@ -460,7 +444,7 @@ function checkForJump() {
 
     if (isJumping && isFacingRight) {
 
-      // console.log(index);
+      console.log(index);
 
       if (index == 6) {
         isJumping = false;
@@ -636,6 +620,7 @@ function drawFinalScreen() {
 function drawFinalBoss() {
   let chicken_x = BOSS_POSITION;
   let chicken_y = 98;
+  let energybar_y = 75;
 
 
   if (bossIsWalking && bossIsFacingLeft) {
@@ -662,10 +647,11 @@ function drawFinalBoss() {
     let timePassed = new Date().getTime() - bossDefeatedAt;
     chicken_x = chicken_x + timePassed * 0.2;
     chicken_y = chicken_y - timePassed * 0.15;
+    energybar_y = -100;
   }
 
   addBackgroundobject(currentBossImage, chicken_x, bg_ground, chicken_y, 0.25, 1);
-  addBackgroundobject(currentBossEnergyImage, BOSS_POSITION - 30, bg_ground, 75, 0.4, 1);
+  addBackgroundobject(currentBossEnergyImage, BOSS_POSITION - 30, bg_ground, energybar_y, 0.4, 1);
 
 }
 
@@ -1110,7 +1096,7 @@ function listenForKeys() {
       let passedTime = new Date().getTime() - bottleThrowTime;
       lastKeyPressed = 0;
 
-      if (passedTime > 2500) {
+      if (passedTime > 2500 && !isThrowingLeft && !isThrowingRight) {
         if (isFacingRight) {
           isThrowingRight = true;
         }
@@ -1153,6 +1139,9 @@ function listenForKeys() {
     }
     if (e.code == 'Space') {
       lastKeyPressed = new Date().getTime();
+      if (isMovingRight || isMovingLeft) {
+        lastKeyPressed = 0;
+      }
     }
     if (k == 'd') {
       lastKeyPressed = new Date().getTime();
@@ -1238,16 +1227,15 @@ function turnSoundOff() {
     }
 
   });
-
 }
 
 function openFullscreen() {
-  if (canvas.requestFullscreen) {
-    canvas.requestFullscreen();
-  } else if (canvas.webkitRequestFullscreen) { /* Safari */
-    canvas.webkitRequestFullscreen();
-  } else if (canvas.msRequestFullscreen) { /* IE11 */
-    canvas.msRequestFullscreen();
+  if (canvasContainer.requestFullscreen) {
+    canvasContainer.requestFullscreen();
   }
-  loadGame();
+  else if (canvasContainer.webkitRequestFullscreen) { /* Safari */
+    canvasContainer.webkitRequestFullscreen();
+  } else if (canvasContainer.msRequestFullscreen) { /* IE11 */
+    canvasContainer.msRequestFullscreen();
+  }
 }
