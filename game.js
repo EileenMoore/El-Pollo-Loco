@@ -32,8 +32,8 @@ let characterGraphicsSleepRight = ['./img/pepe/I-11.png', './img/pepe/I-12.png',
 let characterGraphicsSleepLeft = ['./img/pepe/IL-11.png', './img/pepe/IL-12.png', './img/pepe/IL-13.png', './img/pepe/IL-14.png', './img/pepe/IL-15.png', './img/pepe/IL-16.png', './img/pepe/IL-17.png', './img/pepe/IL-18.png', './img/pepe/IL-19.png', './img/pepe/IL-20.png'];
 let characterGraphicsWalkRight = ['./img/pepe/W-21.png', './img/pepe/W-22.png', './img/pepe/W-23.png', './img/pepe/W-24.png', './img/pepe/W-25.png', './img/pepe/W-26.png'];
 let characterGraphicsWalkLeft = ['./img/pepe/WL-21.png', './img/pepe/WL-22.png', './img/pepe/WL-23.png', './img/pepe/WL-24.png', './img/pepe/WL-25.png', './img/pepe/WL-26.png'];
-let characterGraphicsJumpRight = ['./img/pepe/J-31.png', './img/pepe/J-32.png', './img/pepe/J-33.png', './img/pepe/J-34.png', './img/pepe/J-35.png', './img/pepe/J-36.png', './img/pepe/J-37.png', './img/pepe/J-38.png', './img/pepe/J-38.png'];
-let characterGraphicsJumpLeft = ['./img/pepe/JL-31.png', './img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-36.png', './img/pepe/JL-37.png', './img/pepe/JL-38.png', './img/pepe/JL-39.png'];
+let characterGraphicsJumpRight = ['./img/pepe/J-31.png', './img/pepe/J-32.png', './img/pepe/J-33.png', './img/pepe/J-34.png', './img/pepe/J-35.png', './img/pepe/J-38.png', './img/pepe/J-38.png'];
+let characterGraphicsJumpLeft = ['./img/pepe/JL-31.png', './img/pepe/JL-32.png', './img/pepe/JL-33.png', './img/pepe/JL-34.png', './img/pepe/JL-35.png', './img/pepe/JL-38.png', './img/pepe/JL-39.png'];
 let characterGraphicsHurtRight = ['./img/pepe/D-51.png', './img/pepe/D-52.png', './img/pepe/D-53.png', './img/pepe/D-54.png', './img/pepe/D-55.png', './img/pepe/D-56.png'];
 let characterGraphicsHurtLeft = ['./img/pepe/DL-51.png', './img/pepe/DL-52.png', './img/pepe/DL-53.png', './img/pepe/DL-54.png', './img/pepe/DL-55.png', './img/pepe/DL-56.png'];
 let characterGraphicsDeadRight = ['./img/pepe/H-41.png', './img/pepe/H-42.png', './img/pepe/H-43.png', './img/pepe/J-40.png'];
@@ -83,6 +83,7 @@ let collectedCoins = 0;
 let bottleThrowTime = 0;
 let thrownBottle_x = 0;
 let thrownBottel_y = 0;
+let bottleIsBroken = false;
 let bossDefeatedAt = 0;
 let game_finished = false;
 let lastKeyPressed = 0;
@@ -146,7 +147,6 @@ function loadGame() {
   checkBossEnergy();
   checkForBottle();
   checkForCoin();
-  checkForCollision();
   calculateCloudOffset();
   listenForKeys();
   calculateChickenPosition();
@@ -244,7 +244,7 @@ function checkForCollision() {
       let coin_y = placedCoins[index]['position_y'];
 
       if ((coin_x - 50) < character_x && (coin_x + 50) > character_x) {
-        if ((character_y + 50) > (coin_y - 20) && (character_y - 50) < (coin_y - 20)) {
+        if ((character_y + 180) > coin_y && character_y < (coin_y + 20)) {
           placedCoins.splice(index, 1);
           AUDIO_COIN.play();
           collectedCoins++;
@@ -283,26 +283,28 @@ function checkBossEnergy() {
 
     //Check final boss energy
 
-    if (thrownBottle_x > BOSS_POSITION + bg_ground - 100 && thrownBottle_x < BOSS_POSITION + bg_ground + 100) {
-      if (final_boss_energy > 0) {
+    if (thrownBottle_x > (BOSS_POSITION + bg_ground) - 100 && thrownBottle_x < (BOSS_POSITION + bg_ground) + 100 && thrownBottel_y > 50) {
+      if (final_boss_energy > 0 && !bossIsHurt) {
         final_boss_energy = final_boss_energy - 20;
         AUDIO_GLASS.play();
         bossIsHurt = true;
         index++;
         currentBossEnergyImage = bossEnergyGraphics[index];
+        bottleIsBroken = true;
 
         setTimeout(function () {
           AUDIO_FINAL_BOSS2.play();
         }, 500);
 
-      } else if (bossDefeatedAt == 0) {
+      } 
+      if (final_boss_energy == 0) {
         bossDefeatedAt = new Date().getTime();
         bossIsDead = true;
         AUDIO_FINAL_BOSS2.pause();
         AUDIO_FINAL_BOSS.play();
       }
     }
-  }, 200);
+  }, 100);
 }
 
 
@@ -457,19 +459,20 @@ function checkForJump() {
     //Jump right
 
     if (isJumping && isFacingRight) {
-      // if (index == 8) {
-      //   isJumping = false;
-      //   index = 0;
-      //   characterGraphicIndex = 0;
-      //   currentCharacterImage = './img/pepe/I-1.png';
-      // }
 
-      setTimeout(function () {
+      // console.log(index);
+
+      if (index == 6) {
         isJumping = false;
         index = 0;
         characterGraphicIndex = 0;
-        currentCharacterImage = './img/pepe/I-1.png';
-      }, 2 * JUMP_TIME);
+      }
+
+      // setTimeout(function () {
+      //   isJumping = false;
+      //   index = 0;
+      //   characterGraphicIndex = 0;
+      // }, 2 * JUMP_TIME);
 
       index = characterGraphicIndex % characterGraphicsJumpRight.length;
       currentCharacterImage = characterGraphicsJumpRight[index];
@@ -479,19 +482,18 @@ function checkForJump() {
     //Jump left 
 
     if (isJumping && isFacingLeft) {
-      // if (index == 8) {
-      //   isJumping = false;
-      //   index = 0;
-      //   characterGraphicIndex = 0;
-      //   currentCharacterImage = './img/pepe/I-1.png';
-      // }
 
-      setTimeout(function () {
+      if (index == 6) {
         isJumping = false;
         index = 0;
         characterGraphicIndex = 0;
-        currentCharacterImage = './img/pepe/IL-1.png';
-      }, 2 * JUMP_TIME);
+      }
+
+      // setTimeout(function () {
+      //   isJumping = false;
+      //   index = 0;
+      //   characterGraphicIndex = 0;
+      // }, 2 * JUMP_TIME);
 
       index = characterGraphicIndex % characterGraphicsJumpLeft.length;
       currentCharacterImage = characterGraphicsJumpLeft[index];
@@ -509,7 +511,6 @@ function checkIfHurt() {
     if (isHurt && isFacingRight) {
 
       if (index == 5) {
-        currentCharacterImage = './img/pepe/I-1.png';
         isHurt = false;
         index = 0;
         characterHurtGraphicIndex = 0;
@@ -523,7 +524,6 @@ function checkIfHurt() {
 
     if (isHurt && isFacingLeft) {
       if (index == 5) {
-        currentCharacterImage = './img/pepe/IL-1.png';
         isHurt = false;
         index = 0;
         characterHurtGraphicIndex = 0;
@@ -574,9 +574,17 @@ function checkForBottle() {
 
   setInterval(function () {
 
-    let index = bottleGraphicIndex % bottleGraphics.length;
-    currentBottleImage = bottleGraphics[index];
+    if (bottleIsBroken) {
+      let index = bottleGraphicIndex % tabascoImages.length;
+      currentBottleImage = tabascoImages[index];
+
+    } else {
+      let index = bottleGraphicIndex % bottleGraphics.length;
+      currentBottleImage = bottleGraphics[index];
+    }
+
     bottleGraphicIndex = bottleGraphicIndex + 1;
+
 
   }, 125);
 }
@@ -652,8 +660,8 @@ function drawFinalBoss() {
 
   if (bossDefeatedAt > 0) {
     let timePassed = new Date().getTime() - bossDefeatedAt;
-    chicken_x = chicken_x + timePassed * 0.15;
-    chicken_y = chicken_y - timePassed * 0.1;
+    chicken_x = chicken_x + timePassed * 0.2;
+    chicken_y = chicken_y - timePassed * 0.15;
   }
 
   addBackgroundobject(currentBossImage, chicken_x, bg_ground, chicken_y, 0.25, 1);
@@ -676,6 +684,7 @@ function drawThrowBottle() {
   thrownBottel_y = 280 - (timePassed * 0.6 - gravity);
 
   let base_image = checkBackgroundImageCache(currentBottleImage);
+
   ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.2, base_image.height * 0.2);
 
 }
@@ -739,26 +748,26 @@ function drawCoins() {
 
 function createCoinList() {
   placedCoins = [
-    placedCoin(600, 200),
-    placedCoin(700, 150),
-    placedCoin(800, 100),
-    placedCoin(900, 150),
-    placedCoin(1000, 200),
-    placedCoin(2600, 200),
-    placedCoin(2700, 150),
-    placedCoin(2800, 100),
-    placedCoin(2900, 150),
-    placedCoin(3000, 200),
-    placedCoin(3600, 200),
-    placedCoin(3700, 150),
-    placedCoin(3800, 100),
-    placedCoin(3900, 150),
-    placedCoin(4000, 200),
-    placedCoin(3600, 200),
-    placedCoin(3700, 150),
-    placedCoin(3800, 100),
-    placedCoin(3900, 150),
-    placedCoin(4000, 200),
+    placedCoin(600, 150),
+    placedCoin(700, 100),
+    placedCoin(800, 50),
+    placedCoin(900, 100),
+    placedCoin(1000, 150),
+    placedCoin(2600, 150),
+    placedCoin(2700, 100),
+    placedCoin(2800, 50),
+    placedCoin(2900, 100),
+    placedCoin(3000, 150),
+    placedCoin(3600, 150),
+    placedCoin(3700, 100),
+    placedCoin(3800, 50),
+    placedCoin(3900, 100),
+    placedCoin(4000, 150),
+    placedCoin(3600, 150),
+    placedCoin(3700, 100),
+    placedCoin(3800, 50),
+    placedCoin(3900, 100),
+    placedCoin(4000, 150),
   ];
 }
 
@@ -974,13 +983,13 @@ function updateCharacter() {
 
   let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
   if (timePassedSinceJump < JUMP_TIME) {
-    character_y = character_y - 7;
+    character_y = character_y - 10;
   } else {
 
     //check falling 
 
     if (character_y < 150) {
-      character_y = character_y + 7;
+      character_y = character_y + 10;
       isFallingDown = true;
 
       setTimeout(function () {
@@ -1101,7 +1110,7 @@ function listenForKeys() {
       let passedTime = new Date().getTime() - bottleThrowTime;
       lastKeyPressed = 0;
 
-      if (passedTime > 2000) {
+      if (passedTime > 2500) {
         if (isFacingRight) {
           isThrowingRight = true;
         }
@@ -1115,7 +1124,8 @@ function listenForKeys() {
         setTimeout(function () {
           isThrowingRight = false;
           isThrowingLeft = false;
-        }, 2000);
+          bottleIsBroken = false;
+        }, 2500);
       }
     }
 
