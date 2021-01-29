@@ -16,6 +16,8 @@ let isFacingRight = true;
 let isFacingLeft = false;
 let isFallingDown = false;
 let isSleeping = false;
+let isThrowingRight = false;
+let isThrowingLeft = false;
 let isHurt = false;
 let isDead = false;
 let lastStandStarted = 0;
@@ -65,10 +67,10 @@ let bossIsAlerted = true;
 let bossIsAttacking = false;
 let bossIsHurt = false;
 let bossIsDead = false;
-let lastBossHurt = 0;
 let bossEnergyGraphics = ['./img/bars/bossenergy1.png', './img/bars/bossenergy2.png', './img/bars/bossenergy3.png', './img/bars/bossenergy4.png', './img/bars/bossenergy5.png', './img/bars/bossenergy6.png'];
 let currentBossEnergyImage = './img/bars/bossenergy1.png';
 let bottleGraphics = ['./img/bottle/bottle.png', './img/bottle/bottle3.png', './img/bottle/bottle4.png', './img/bottle/bottle5.png'];
+let tabascoImages = ['./img/bottle/tabasco1.png', './img/bottle/tabasco2.png', './img/bottle/tabasco3.png', './img/bottle/tabasco4.png', './img/bottle/tabasco5.png', './img/bottle/tabasco6.png'];
 let currentBottleImage = './img/bottle/bottle.png';
 let bottleGraphicIndex = 0;
 let coinGraphics = ['img/coins/coin1.png', 'img/coins/coin2.png'];
@@ -94,7 +96,6 @@ let soundIsOff = false;
 
 let JUMP_TIME = 350; // in ms
 let HURT_TIME = 700;
-let BOSS_HURT_TIME = 2000;
 let DEAD_TIME = 500;
 let GAME_SPEED = 7;
 let BOSS_POSITION = 5000;
@@ -257,7 +258,7 @@ function checkForCollision() {
     if ((boss_x - 80) < character_x && (boss_x + 80) > character_x) {
       if (character_y > 10) {
         if (character_energy > 0) {
-          if (timePassedSinceHurt > 2 * HURT_TIME) {
+          if (timePassedSinceHurt > 2 * HURT_TIME && !bossIsDead) {
             isHurt = true;
             AUDIO_HURT.play();
             lastHurtStarted = new Date().getTime();
@@ -281,11 +282,9 @@ function checkBossEnergy() {
   setInterval(function () {
 
     //Check final boss energy
-    let timePassed = new Date().getTime() - lastBossHurt;
 
-    if (thrownBottle_x > BOSS_POSITION + bg_ground - 100 && thrownBottle_x < BOSS_POSITION + bg_ground + 100 && timePassed > BOSS_HURT_TIME) {
+    if (thrownBottle_x > BOSS_POSITION + bg_ground - 100 && thrownBottle_x < BOSS_POSITION + bg_ground + 100) {
       if (final_boss_energy > 0) {
-        lastBossHurt = new Date().getTime();
         final_boss_energy = final_boss_energy - 20;
         AUDIO_GLASS.play();
         bossIsHurt = true;
@@ -651,8 +650,13 @@ function drawFinalBoss() {
     bossIsFacingRight = false;
   }
 
-  addBackgroundobject(currentBossImage, chicken_x, bg_ground, chicken_y, 0.25, 1);
+  if (bossDefeatedAt > 0) {
+    let timePassed = new Date().getTime() - bossDefeatedAt;
+    chicken_x = chicken_x + timePassed * 0.15;
+    chicken_y = chicken_y - timePassed * 0.1;
+  }
 
+  addBackgroundobject(currentBossImage, chicken_x, bg_ground, chicken_y, 0.25, 1);
   addBackgroundobject(currentBossEnergyImage, BOSS_POSITION - 30, bg_ground, 75, 0.4, 1);
 
 }
@@ -662,11 +666,13 @@ function drawThrowBottle() {
   let timePassed = new Date().getTime() - bottleThrowTime;
   let gravity = Math.pow(9.81, timePassed / 300);
 
-  if (isFacingRight) {
+  if (isThrowingRight) {
     thrownBottle_x = 225 + (timePassed * 0.7);
-  } else if (isFacingLeft) {
+
+  } else if (isThrowingLeft) {
     thrownBottle_x = 225 - (timePassed * 0.7);
   }
+
   thrownBottel_y = 280 - (timePassed * 0.6 - gravity);
 
   let base_image = checkBackgroundImageCache(currentBottleImage);
@@ -939,7 +945,6 @@ function checkForBoss() {
       bossGraphicIndex = bossGraphicIndex + 1;
     }
 
-    //Boss is dead
     if (bossIsDead && bossIsFacingRight) {
       bossIsAlerted = false;
       bossIsWalking = false;
@@ -1096,10 +1101,21 @@ function listenForKeys() {
       let passedTime = new Date().getTime() - bottleThrowTime;
       lastKeyPressed = 0;
 
-      if (passedTime > 1000) {
+      if (passedTime > 2000) {
+        if (isFacingRight) {
+          isThrowingRight = true;
+        }
+        if (isFacingLeft) {
+          isThrowingLeft = true;
+        }
         AUDIO_THROW.play();
         collectedBottles--;
         bottleThrowTime = new Date().getTime();
+
+        setTimeout(function () {
+          isThrowingRight = false;
+          isThrowingLeft = false;
+        }, 2000);
       }
     }
 
