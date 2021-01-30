@@ -26,15 +26,28 @@
             <button onclick="loadGame()">OK</button>
         </div>
 
-        <div class="fullscreen-window"> 
-           <span>Please activate the fullscreen mode!</span> 
-           <button>OK</button>
+        <div class="fullscreen-window level-description" id="fullscreen-window">
+            <span>Please activate the fullscreen mode!</span>
+            <div>
+                <button onclick="openFullscreen()">OK</button>
+                <button onclick="closeFullscreenWindow()">Abort</button>
+            </div>
         </div>
 
-        <img class="expand-icon" src="img/expand-32.ico" onclick="openFullscreen()">
+        <img id="expand-icon" class="expand-icon" src="img/expand-32.ico" onclick="openFullscreen()">
+        <img id="exit-icon" class="expand-icon d-none" src="img/exit-32.ico" onclick="closeFullscreen()">
+
+        <div class="arrows">
+            <img id="bottle" class="arrow arrow-move" src="img/bottle-64.ico" ontouchstart="transform(); throwbottle()" ontouchend="stopthrowbottle()">
+            <img id="arrow-left" class="arrow arrow-move" src="img/arrow-left.ico"  ontouchstart="transform(); moveleft()" ontouchend="stopmoveleft()">
+            <img id="arrow-up" class="arrow arrow-move" src="img/arrow-up.ico" ontouchstart="transform(); jump()" ontouchend="stopjump()">
+            <img id="arrow-right" class="arrow arrow-move" src="img/arrow-right.ico" ontouchstart="transform(); moveright()" ontouchend="stopmoveright()">
+        </div>
+
     </div>
 
-    <h4 class="description">Run: Arrow right/left | Jump: space-bar | Throw Tasbasco: d | Music on/off: m | Sound on/off: v</h3>
+    <h4 class="description">Run: Arrow right/left | Jump: space-bar | Throw Tasbasco: d | Music on/off: m | Sound
+        on/off: v</h3>
 
 </body>
 

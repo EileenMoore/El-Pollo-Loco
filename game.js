@@ -116,6 +116,9 @@ let AUDIO_BACKGROUND_MUSIC = new Audio('audio/music.mp3');
 AUDIO_BACKGROUND_MUSIC.loop = true;
 AUDIO_BACKGROUND_MUSIC.volume = 0.2;
 
+/**
+ * This function initializes the game and the canvas.
+ */
 function init() {
   preloadImages();
   canvas = document.getElementById('canvas');
@@ -123,11 +126,17 @@ function init() {
   draw();
 }
 
+/**
+ * This function shows the start-button and the level-description.
+ */
 function showDescription() {
   document.getElementById('start-button').classList.add('d-none');
   document.getElementById('level-description').classList.remove('d-none');
 }
 
+/**
+ * This function loads the game.
+ */
 function loadGame() {
   document.getElementById('level-description').classList.add('d-none');
   AUDIO_BACKGROUND_MUSIC.play();
@@ -156,110 +165,144 @@ function loadGame() {
   checkIfGameIsFinished();
 }
 
+/**
+ * This function checks for collision of the character.
+ */
 function checkForCollision() {
 
   setInterval(function () {
 
-    //Check hen collision
-    for (let index = 0; index < hens.length; index++) {
-      let hen = hens[index];
-      let hen_x = hen.position_x + bg_ground;
+    checkForHenCollision();
+    checkForChickenCollission();
+    checkForBottleCollection();
+    checkForCoinCollection();
+    checkForBossCollision();
 
-      if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead && character_y > 110 && isFallingDown) {
-        AUDIO_CRACK.play();
-        hen.dead = true;
-      }
-      if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead && character_y > 130) {
-        if (character_energy > 0) {
-          if (timePassedSinceHurt > 2 * HURT_TIME) {
-            isHurt = true;
-            AUDIO_HURT.play();
-            lastHurtStarted = new Date().getTime();
-            character_energy -= 10;
-          }
-        } else {
-          isDead = true;
-          ishurt = false;
-          deadStarted = new Date().getTime();
-        }
-      }
-      if ((hen_x - 200) < character_x && (hen_x + 200) > character_x && !hen.dead) {
-        AUDIO_HEN.play();
+  }, 100);
+}
 
-      }
+/**
+ * This function checks for collision between the character and the hens.
+ */
+function checkForHenCollision() {
+  for (let index = 0; index < hens.length; index++) {
+    let hen = hens[index];
+    let hen_x = hen.position_x + bg_ground;
+
+    if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead && character_y > 110 && isFallingDown) {
+      AUDIO_CRACK.play();
+      hen.dead = true;
     }
-
-    //Check chicken collision
-    for (let index = 0; index < chickens.length; index++) {
-      let chicken = chickens[index];
-      let chicken_x = chicken.position_x + bg_ground;
-
-      if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x && !chicken.dead && character_y > 110 && isFallingDown) {
-        AUDIO_CRACK.play();
-        chicken.dead = true;
-      }
-      if ((chicken_x - 50) < character_x && (chicken_x + 50) > character_x && !chicken.dead && character_y > 110) {
-        if (character_energy > 0) {
-          if (timePassedSinceHurt > 2 * HURT_TIME) {
-            isHurt = true;
-            AUDIO_HURT.play();
-            lastHurtStarted = new Date().getTime();
-            character_energy -= 10;
-          }
-        } else {
-          isDead = true;
-          ishurt = false;
-          deadStarted = new Date().getTime();
+    if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead && character_y > 130) {
+      if (character_energy > 0) {
+        if (timePassedSinceHurt > 2 * HURT_TIME) {
+          isHurt = true;
+          AUDIO_HURT.play();
+          lastHurtStarted = new Date().getTime();
+          character_energy -= 10;
         }
-      }
-    }
-
-    //Check bottle collect
-    for (let index = 0; index < placedBottles.length; index++) {
-      let bottle_x = placedBottles[index]['position_x'] + bg_ground;
-
-      if ((bottle_x - 40) < character_x && (bottle_x + 40) > character_x) {
-        if (character_y > 110) {
-          placedBottles.splice(index, 1);
-          AUDIO_BOTTLE.play();
-          collectedBottles++;
-        }
-      }
-    }
-
-    //Check coin collect
-    for (let index = 0; index < placedCoins.length; index++) {
-      let coin_x = placedCoins[index]['position_x'] + bg_ground;
-      let coin_y = placedCoins[index]['position_y'];
-
-      if ((coin_x - 50) < character_x && (coin_x + 50) > character_x) {
-        if ((character_y + 180) > coin_y && character_y < (coin_y + 20)) {
-          placedCoins.splice(index, 1);
-          AUDIO_COIN.play();
-          collectedCoins++;
-        }
-      }
-    }
-
-    //Check final boss collision
-    let boss_x = BOSS_POSITION + bg_ground;
-
-    if ((boss_x - 80) < character_x && (boss_x + 80) > character_x && character_y > 10) {
-      if (character_energy > 0 && timePassedSinceHurt > 2 * HURT_TIME && !bossIsDead) {
-        isHurt = true;
-        AUDIO_HURT.play();
-        lastHurtStarted = new Date().getTime();
-        character_energy -= 10;
       } else {
         isDead = true;
         ishurt = false;
         deadStarted = new Date().getTime();
       }
     }
-  }, 100);
+    if ((hen_x - 200) < character_x && (hen_x + 200) > character_x && !hen.dead) {
+      AUDIO_HEN.play();
+
+    }
+  }
 }
 
+/**
+ * This function checks for collision between the character and the chickens.
+ */
+function checkForChickenCollission() {
+  for (let index = 0; index < chickens.length; index++) {
+    let chicken = chickens[index];
+    let chicken_x = chicken.position_x + bg_ground;
 
+    if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x && !chicken.dead && character_y > 110 && isFallingDown) {
+      AUDIO_CRACK.play();
+      chicken.dead = true;
+    }
+    if ((chicken_x - 50) < character_x && (chicken_x + 50) > character_x && !chicken.dead && character_y > 110) {
+      if (character_energy > 0) {
+        if (timePassedSinceHurt > 2 * HURT_TIME) {
+          isHurt = true;
+          AUDIO_HURT.play();
+          lastHurtStarted = new Date().getTime();
+          character_energy -= 10;
+        }
+      } else {
+        isDead = true;
+        ishurt = false;
+        deadStarted = new Date().getTime();
+      }
+    }
+  }
+}
+
+/**
+ * This function checks for collision between the character and the chickens.
+ */
+function checkForBossCollision() {
+  let boss_x = BOSS_POSITION + bg_ground;
+
+  if ((boss_x - 80) < character_x && (boss_x + 80) > character_x && character_y > 10) {
+    if (character_energy > 0) {
+      if (timePassedSinceHurt > 2 * HURT_TIME && !bossIsDead) {
+        isHurt = true;
+        AUDIO_HURT.play();
+        lastHurtStarted = new Date().getTime();
+        character_energy -= 10;
+      }
+    } else {
+      isDead = true;
+      ishurt = false;
+      deadStarted = new Date().getTime();
+    }
+  }
+}
+
+/**
+ * This function checks if bottles are collected by the character.
+ */
+function checkForBottleCollection() {
+  for (let index = 0; index < placedBottles.length; index++) {
+    let bottle_x = placedBottles[index]['position_x'] + bg_ground;
+
+    if ((bottle_x - 40) < character_x && (bottle_x + 40) > character_x) {
+      if (character_y > 110) {
+        placedBottles.splice(index, 1);
+        AUDIO_BOTTLE.play();
+        collectedBottles++;
+      }
+    }
+  }
+}
+
+/**
+ * This function checks if coins are collected by the character.
+ */
+function checkForCoinCollection() {
+  for (let index = 0; index < placedCoins.length; index++) {
+    let coin_x = placedCoins[index]['position_x'] + bg_ground;
+    let coin_y = placedCoins[index]['position_y'];
+
+    if ((coin_x - 50) < character_x && (coin_x + 50) > character_x) {
+      if ((character_y + 180) > coin_y && character_y < (coin_y + 20)) {
+        placedCoins.splice(index, 1);
+        AUDIO_COIN.play();
+        collectedCoins++;
+      }
+    }
+  }
+}
+
+/**
+ * This function checks the energy of the chicken boss.
+ */
 function checkBossEnergy() {
   let index = 0;
 
@@ -1082,46 +1125,19 @@ function listenForKeys() {
     const k = e.key;
 
     if (k == 'ArrowRight') {
-      isMovingRight = true;
-      lastKeyPressed = 0;
+      moveright();
     }
 
     if (k == 'ArrowLeft') {
-      isMovingLeft = true;
-      lastKeyPressed = 0;
+      moveleft();
     }
 
-    if (k == 'd' && collectedBottles > 0) {
-
-      let passedTime = new Date().getTime() - bottleThrowTime;
-      lastKeyPressed = 0;
-
-      if (passedTime > 2500 && !isThrowingLeft && !isThrowingRight) {
-        if (isFacingRight) {
-          isThrowingRight = true;
-        }
-        if (isFacingLeft) {
-          isThrowingLeft = true;
-        }
-        AUDIO_THROW.play();
-        collectedBottles--;
-        bottleThrowTime = new Date().getTime();
-
-        setTimeout(function () {
-          isThrowingRight = false;
-          isThrowingLeft = false;
-          bottleIsBroken = false;
-        }, 2500);
-      }
+    if (k == 'd') {
+      throwbottle();
     }
 
-    let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
-
-    if (e.code == 'Space' && timePassedSinceJump > JUMP_TIME * 2) {
-      lastKeyPressed = 0;
-      isJumping = true;
-      AUDIO_JUMP.play();
-      lastJumpStarted = new Date().getTime();
+    if (e.code == 'Space') {
+      jump();
     }
 
   });
@@ -1130,23 +1146,85 @@ function listenForKeys() {
     const k = e.key;
 
     if (k == 'ArrowRight') {
-      isMovingRight = false;
-      lastKeyPressed = new Date().getTime();
+      stopmoveright();
     }
     if (k == 'ArrowLeft') {
-      isMovingLeft = false;
-      lastKeyPressed = new Date().getTime();
+      stopmoveleft();
     }
     if (e.code == 'Space') {
-      lastKeyPressed = new Date().getTime();
-      if (isMovingRight || isMovingLeft) {
-        lastKeyPressed = 0;
-      }
+      stopjump();
     }
     if (k == 'd') {
-      lastKeyPressed = new Date().getTime();
+      stopthrowbottle();
     }
   });
+}
+
+function moveright() {
+  isMovingRight = true;
+  lastKeyPressed = 0;
+}
+
+function stopmoveright() {
+  isMovingRight = false;
+  lastKeyPressed = new Date().getTime();
+}
+
+function moveleft() {
+  isMovingLeft = true;
+  lastKeyPressed = 0;
+}
+
+function stopmoveleft() {
+  isMovingLeft = false;
+  lastKeyPressed = new Date().getTime();
+}
+
+function jump() {
+  let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+  if (timePassedSinceJump > JUMP_TIME * 2) {
+    lastKeyPressed = 0;
+    isJumping = true;
+    AUDIO_JUMP.play();
+    lastJumpStarted = new Date().getTime();
+  }
+}
+
+function stopjump() {
+  lastKeyPressed = new Date().getTime();
+  if (isMovingRight || isMovingLeft) {
+    lastKeyPressed = 0;
+  }
+}
+
+function throwbottle() {
+  if (collectedBottles > 0) {
+
+    let passedTime = new Date().getTime() - bottleThrowTime;
+    lastKeyPressed = 0;
+
+    if (passedTime > 2500 && !isThrowingLeft && !isThrowingRight) {
+      if (isFacingRight) {
+        isThrowingRight = true;
+      }
+      if (isFacingLeft) {
+        isThrowingLeft = true;
+      }
+      AUDIO_THROW.play();
+      collectedBottles--;
+      bottleThrowTime = new Date().getTime();
+
+      setTimeout(function () {
+        isThrowingRight = false;
+        isThrowingLeft = false;
+        bottleIsBroken = false;
+      }, 2500);
+    }
+  }
+}
+
+function stopthrowbottle() {
+  lastKeyPressed = new Date().getTime();
 }
 
 function restart() {
@@ -1230,6 +1308,10 @@ function turnSoundOff() {
 }
 
 function openFullscreen() {
+  document.getElementById('fullscreen-window').classList.add('d-none');
+  document.getElementById('expand-icon').classList.add('d-none');
+  document.getElementById('exit-icon').classList.remove('d-none');
+
   if (canvasContainer.requestFullscreen) {
     canvasContainer.requestFullscreen();
   }
@@ -1239,3 +1321,28 @@ function openFullscreen() {
     canvasContainer.msRequestFullscreen();
   }
 }
+
+function closeFullscreen() {
+  document.getElementById('expand-icon').classList.remove('d-none');
+  document.getElementById('exit-icon').classList.add('d-none');
+
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) { /* Safari */
+    document.webkitExitFullscreen();
+  } else if (document.msExitFullscreen) { /* IE11 */
+    document.msExitFullscreen();
+  }
+}
+
+function closeFullscreenWindow() {
+  document.getElementById('fullscreen-window').classList.add('d-none');
+}
+
+function transform() {
+  document.getElementById('arrow-right').classList.add('arrow-move');
+  setTimeout(function () {
+    document.getElementById('arrow-right').classList.remove('arrow-move');
+  }, 225);
+}
+
