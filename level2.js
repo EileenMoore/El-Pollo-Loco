@@ -14,6 +14,8 @@ function startLevel2() {
   collectedBottles = 0;
   collectedCoins = 0;
   bossIsDead = false;
+  level2 = true;
+  BOSS_POSITION = 10000;
 
   document.getElementById('level-description').innerHTML = `
   <h2>LEVEL 2</h2>
@@ -25,42 +27,69 @@ function startLevel2() {
 function loadLevel2() {
   gamestart = true;
   document.getElementById('level-description').classList.add('d-none');
-  draw();
+  createChickenList2();
+  createBottleList2();
+  createCoinList2();
+  createHenList2();
 }
 
+/**
+* This creates a list of chickens.
+*/
+function createChickenList2() {
+  chickens = [
+    createChicken(700),
+  ];
+}
 
-// /**
-//  * This function loads level2.
-//  */
-// function loadLevel2() {
-//     gamestart = true;
-//     document.getElementById('level-description').classList.add('d-none');
-//     // createChickenList();
-//     // createBottleList();
-//     // createCoinList();
-//     // createHenList();
-//     createCharacter();
-//     checkForSleep();
-//     checkForRunning();
-//     checkForJump();
-//     checkIfHurt();
-//     checkIfDead();
-//     checkForChicken();
-//     checkForHens();
-//     checkForBoss();
-//     checkBossEnergy();
-//     checkForBottle();
-//     checkForCoin();
-//     calculateCloudOffset();
-//     listenForKeys();
-//     calculateChickenPosition();
-//     calculateHenPosition();
-//     checkForCollision();
-//     lastKeyPressed = new Date().getTime();
-//     checkIfGameIsFinished();
-// }
+/**
+* This creates a list of hens.
+*/
+function createHenList2() {
+  hens = [
+    createChicken(800),
+  ];
+}
 
-// function drawLevel2() {
-// updateCharacter();
+/**
+* This function generates a list of coins.
+*/
+function createCoinList2() {
+  placedCoins = [
+    placedCoin(600, 150),
+    placedCoin(700, 100),
+    placedCoin(800, 50),
+    placedCoin(900, 100),
+    placedCoin(1000, 150),
+    placedCoin(2600, 150),
+    placedCoin(2700, 100),
+    placedCoin(2800, 50),
+    placedCoin(2900, 100),
+    placedCoin(3000, 150),
+    placedCoin(3600, 150),
+    placedCoin(3700, 100),
+    placedCoin(3800, 50),
+    placedCoin(3900, 100),
+    placedCoin(4000, 150),
+    placedCoin(3600, 150),
+    placedCoin(3700, 100),
+    placedCoin(3800, 50),
+    placedCoin(3900, 100),
+    placedCoin(4000, 150),
+  ];
+}
 
-// }
+/**
+*This function generates a list of bottles on the ground. 
+*/
+function createBottleList2() {
+  placedBottles = [
+    placedBottle(500, 1),
+    placedBottle(1000, 2),
+    placedBottle(1700, 1),
+    placedBottle(2500, 2),
+    placedBottle(2800, 2),
+    placedBottle(3300, 1),
+    placedBottle(3600, 2),
+  ];
+}

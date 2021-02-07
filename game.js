@@ -91,6 +91,8 @@ let bossDefeatedAt = 0;
 let game_finished = false;
 let lastKeyPressed = 0;
 let gamestart = false;
+let level1 = false;
+let level2 = false;
 
 let musicIsOn = true;
 let musicIsOff = false;
@@ -122,6 +124,40 @@ AUDIO_BACKGROUND_MUSIC.volume = 0.2;
 
 
 /**
+* This function loads the game.
+*/
+function loadGame() {
+  game_finished = false;
+  gamestart = true;
+  document.getElementById('level-description').classList.add('d-none');
+  AUDIO_BACKGROUND_MUSIC.play();
+  createChickenList1();
+  createBottleList1();
+  createCoinList1();
+  createHenList1();
+  createCharacter();
+  checkForSleep();
+  checkForRunning();
+  checkForJump();
+  checkIfHurt();
+  checkIfDead();
+  checkForChicken();
+  checkForHens();
+  checkForBoss();
+  checkBossEnergy();
+  checkForBottle();
+  checkForCoin();
+  calculateCloudOffset();
+  listenForKeys();
+  calculateChickenPosition();
+  calculateHenPosition();
+  checkForCollision();
+  lastKeyPressed = new Date().getTime();
+  checkIfGameIsFinished();
+  drawFinalScreen1();
+}
+
+/**
  * This function checks for collision of the character.
  */
 function checkForCollision() {
@@ -133,8 +169,21 @@ function checkForCollision() {
     checkForBottleCollection();
     checkForCoinCollection();
     checkForBossCollision();
+    checkForJumpBarCollision();
 
   }, 100);
+}
+
+function checkForJumpBarCollision() {
+
+  console.log(character_x);
+  console.log(250 + bg_ground);
+  console.log(400 + bg_ground);
+
+  if (character_x > 300 + bg_ground && character_x < 400 + bg_ground && character_y < 100 ) {
+    character_y = 72;
+    isJumping = false;
+  }
 }
 
 /**
@@ -575,20 +624,32 @@ function checkForCoin() {
  * This function is for drawing on the canvas.
  */
 function draw() {
+  requestAnimationFrame(draw);
   drawBackground();
-  if (game_finished) {
-    drawFinalScreen();
+  if (game_finished && level1) {
+    drawFinalScreen1();
   } else {
     updateCharacter();
     drawChicken();
     drawHen();
     drawBottles();
     drawCoins();
-    requestAnimationFrame(draw);
     drawInformation();
     drawThrowBottle();
+    if (level1) {
+      drawFinalBoss();
+    }
+    if (level2) {
+      drawJumpBars();
+    }
   }
-  drawFinalBoss();
+
+}
+
+function drawJumpBars() {
+  ctx.fillStyle = "black";
+  ctx.fillRect(350 + bg_ground, 300, 100, 25);
+
 }
 
 /**
@@ -978,7 +1039,7 @@ function updateCharacter() {
   } else {
 
     //check falling 
-    if (character_y < 150) {
+    if (character_y < 150 && isJumping) {
       character_y = character_y + 10;
       isFallingDown = true;
 
@@ -1249,7 +1310,7 @@ function stopthrowbottle() {
  */
 function restart() {
   location.reload();
-  loadLevel1();
+  loadGame();
 }
 
 /**

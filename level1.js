@@ -1,8 +1,8 @@
-
 /**
  * This function initializes the game and the canvas.
  */
 function init() {
+    level1 = true;
     preloadImages();
     canvas = document.getElementById('canvas');
     ctx = canvas.getContext("2d");
@@ -19,42 +19,9 @@ function showDescription() {
 }
 
 /**
-* This function loads level1.
-*/
-function loadLevel1() {
-    game_finished = false;
-    gamestart = true;
-    document.getElementById('level-description').classList.add('d-none');
-    AUDIO_BACKGROUND_MUSIC.play();
-    createChickenList();
-    createBottleList();
-    createCoinList();
-    createHenList();
-    createCharacter();
-    checkForSleep();
-    checkForRunning();
-    checkForJump();
-    checkIfHurt();
-    checkIfDead();
-    checkForChicken();
-    checkForHens();
-    checkForBoss();
-    checkBossEnergy();
-    checkForBottle();
-    checkForCoin();
-    calculateCloudOffset();
-    listenForKeys();
-    calculateChickenPosition();
-    calculateHenPosition();
-    checkForCollision();
-    lastKeyPressed = new Date().getTime();
-    checkIfGameIsFinished();
-}
-
-/**
 * This creates a list of chickens.
 */
-function createChickenList() {
+function createChickenList1() {
     chickens = [
         createChicken(700),
         createChicken(1800),
@@ -68,7 +35,7 @@ function createChickenList() {
 /**
  * This creates a list of hens.
  */
-function createHenList() {
+function createHenList1() {
     hens = [
         createChicken(1400),
         createChicken(2500),
@@ -76,11 +43,10 @@ function createHenList() {
     ];
 }
 
-
 /**
  * This function generates a list of coins.
  */
-function createCoinList() {
+function createCoinList1() {
     placedCoins = [
         placedCoin(600, 150),
         placedCoin(700, 100),
@@ -108,7 +74,7 @@ function createCoinList() {
 /**
  *This function generates a list of bottles on the ground. 
  */
-function createBottleList() {
+function createBottleList1() {
     placedBottles = [
         placedBottle(500, 1),
         placedBottle(1000, 2),
@@ -123,10 +89,11 @@ function createBottleList() {
 /**
  * This function shows the screen when the game is finished.
  */
-function drawFinalScreen() {
+function drawFinalScreen1() {
 
     document.getElementById('level-description').classList.remove('d-none');
     gamestart = false;
+    level1 = false;
   
     document.getElementById('level-description').innerHTML = `
     <h1>You won!</h1>
