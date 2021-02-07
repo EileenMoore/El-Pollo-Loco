@@ -93,7 +93,7 @@ button:hover {
 
 .arrows {
     position: absolute;
-    bottom: 8px;
+    bottom: 10px;
 }
 
 .arrow {
@@ -105,10 +105,10 @@ button:hover {
 }
 
 .arrow-move {
-    translate: translateY(10px)!important    ;;
+    transform: translateY(8px) !important;
 }
 
-@media (max-width: 1000px) and (orientation: portrait) {
+/* @media (max-width: 1000px) and (orientation: portrait) {
     html {
         transform: rotate(-90deg);
         transform-origin: left top;
@@ -118,7 +118,19 @@ button:hover {
         top: 100%;
         left: 0;
     }
-}
+} */
+/* 
+@media (display-mode: fullscreen) and (orientation: portrait) {
+    html {
+        transform: rotate(-90deg);
+        transform-origin: left top;
+        width: 100vh;
+        overflow-x: hidden;
+        position: absolute;
+        top: 100%;
+        left: 0;
+    }
+  } */
 
 @media(max-width: 1000px) {
     .canvas-container {

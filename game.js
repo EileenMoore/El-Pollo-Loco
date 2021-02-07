@@ -40,6 +40,7 @@ let characterGraphicsDeadRight = ['./img/pepe/H-41.png', './img/pepe/H-42.png', 
 let characterGraphicsDeadLeft = ['./img/pepe/HL-41.png', './img/pepe/HL-42.png', './img/pepe/HL-43.png', './img/pepe/J-40.png'];
 let characterGraphicIndex = 0;
 let characterHurtGraphicIndex = 0;
+let characterGraphicJumpIndex = 0;
 let cloudOffset = 0;
 let chickens = [];
 let currentChickenImage = './img/chicken/chicken1.png';
@@ -89,6 +90,7 @@ let bottleIsBroken = false;
 let bossDefeatedAt = 0;
 let game_finished = false;
 let lastKeyPressed = 0;
+let gamestart = false;
 
 let musicIsOn = true;
 let musicIsOff = false;
@@ -118,54 +120,6 @@ let AUDIO_BACKGROUND_MUSIC = new Audio('audio/music.mp3');
 AUDIO_BACKGROUND_MUSIC.loop = true;
 AUDIO_BACKGROUND_MUSIC.volume = 0.2;
 
-/**
- * This function initializes the game and the canvas.
- */
-function init() {
-  preloadImages();
-  canvas = document.getElementById('canvas');
-  ctx = canvas.getContext("2d");
-  draw();
-}
-
-/**
- * This function shows the start-button and the level-description.
- */
-function showDescription() {
-  document.getElementById('start-button').classList.add('d-none');
-  document.getElementById('level-description').classList.remove('d-none');
-}
-
-/**
- * This function loads the game.
- */
-function loadGame() {
-  document.getElementById('level-description').classList.add('d-none');
-  AUDIO_BACKGROUND_MUSIC.play();
-  createChickenList();
-  createBottleList();
-  createCoinList();
-  createHenList();
-  createCharacter();
-  checkForSleep();
-  checkForRunning();
-  checkForJump();
-  checkIfHurt();
-  checkIfDead();
-  checkForChicken();
-  checkForHens();
-  checkForBoss();
-  checkBossEnergy();
-  checkForBottle();
-  checkForCoin();
-  calculateCloudOffset();
-  listenForKeys();
-  calculateChickenPosition();
-  calculateHenPosition();
-  checkForCollision();
-  lastKeyPressed = new Date().getTime();
-  checkIfGameIsFinished();
-}
 
 /**
  * This function checks for collision of the character.
@@ -344,6 +298,9 @@ function checkIfGameIsFinished() {
 
     if (timePassed > 2500 && collectedCoins == 20 && bossIsDead) {
       AUDIO_WIN.play();
+      setTimeout(function () {
+        AUDIO_WIN.pause();
+      }, 1200);
       game_finished = true;
     }
   }, 100);
@@ -384,31 +341,6 @@ function calculateHenPosition() {
     }
   }, 50);
 
-}
-
-/**
- * This creates a list of chickens.
- */
-function createChickenList() {
-  chickens = [
-    createChicken(700),
-    createChicken(1800),
-    createChicken(3000),
-    createChicken(3300),
-    createChicken(3800),
-    createChicken(4500),
-  ];
-}
-
-/**
- * This creates a list of hens.
- */
-function createHenList() {
-  hens = [
-    createChicken(1400),
-    createChicken(2500),
-    createChicken(4200),
-  ];
 }
 
 /**
@@ -510,43 +442,27 @@ function checkForJump() {
   setInterval(function () {
 
     if (isJumping && isFacingRight) {
+      index = characterGraphicJumpIndex % characterGraphicsJumpRight.length;
+      currentCharacterImage = characterGraphicsJumpRight[index];
+      characterGraphicJumpIndex = characterGraphicJumpIndex + 1;
 
-      console.log(index);
-
-      if (index == 6) {
+      if (index == characterGraphicsJumpRight.length - 1) {
         isJumping = false;
         index = 0;
-        characterGraphicIndex = 0;
+        characterGraphicJumpIndex = 0;
       }
-
-      // setTimeout(function () {
-      //   isJumping = false;
-      //   index = 0;
-      //   characterGraphicIndex = 0;
-      // }, 2 * JUMP_TIME);
-
-      index = characterGraphicIndex % characterGraphicsJumpRight.length;
-      currentCharacterImage = characterGraphicsJumpRight[index];
-      characterGraphicIndex = characterGraphicIndex + 1;
     }
 
     if (isJumping && isFacingLeft) {
+      index = characterGraphicJumpIndex % characterGraphicsJumpLeft.length;
+      currentCharacterImage = characterGraphicsJumpLeft[index];
+      characterGraphicJumpIndex = characterGraphicJumpIndex + 1;
 
-      if (index == 6) {
+      if (index == characterGraphicsJumpLeft.length - 1) {
         isJumping = false;
         index = 0;
-        characterGraphicIndex = 0;
+        characterGraphicJumpIndex = 0;
       }
-
-      // setTimeout(function () {
-      //   isJumping = false;
-      //   index = 0;
-      //   characterGraphicIndex = 0;
-      // }, 2 * JUMP_TIME);
-
-      index = characterGraphicIndex % characterGraphicsJumpLeft.length;
-      currentCharacterImage = characterGraphicsJumpLeft[index];
-      characterGraphicIndex = characterGraphicIndex + 1;
     }
 
   }, 125);
@@ -561,28 +477,27 @@ function checkIfHurt() {
   setInterval(function () {
     if (isHurt && isFacingRight) {
 
-      if (index == 5) {
+      index = characterHurtGraphicIndex % characterGraphicsHurtRight.length;
+      currentCharacterImage = characterGraphicsHurtRight[index];
+      characterHurtGraphicIndex = characterHurtGraphicIndex + 1;
+
+      if (index == characterGraphicsHurtRight.length - 1) {
         isHurt = false;
         index = 0;
         characterHurtGraphicIndex = 0;
-
-      } else {
-        index = characterHurtGraphicIndex % characterGraphicsHurtRight.length;
-        currentCharacterImage = characterGraphicsHurtRight[index];
-        characterHurtGraphicIndex = characterHurtGraphicIndex + 1;
       }
     }
 
     if (isHurt && isFacingLeft) {
-      if (index == 5) {
+
+      index = characterHurtGraphicIndex % characterGraphicsHurtLeft.length;
+      currentCharacterImage = characterGraphicsHurtLeft[index];
+      characterHurtGraphicIndex = characterHurtGraphicIndex + 1;
+
+      if (index == characterGraphicsHurtLeft.length - 1) {
         isHurt = false;
         index = 0;
         characterHurtGraphicIndex = 0;
-
-      } else {
-        index = characterHurtGraphicIndex % characterGraphicsHurtLeft.length;
-        currentCharacterImage = characterGraphicsHurtLeft[index];
-        characterHurtGraphicIndex = characterHurtGraphicIndex + 1;
       }
     }
 
@@ -674,26 +589,6 @@ function draw() {
     drawThrowBottle();
   }
   drawFinalBoss();
-}
-
-/**
- * This function shows the screen when the game is finished.
- */
-function drawFinalScreen() {
-
-  document.getElementById('level-description').classList.remove('d-none');
-  AUDIO_WIN.muted = true;
-
-  document.getElementById('level-description').innerHTML = `
-  <h1>You won!</h1>
-  <button>Level 2</button>`
-
-  if (isDead) {
-    document.getElementById('level-description').innerHTML = `
- <h1>You lost!</h1>
- <button onclick="restart()">Play again</button>`
-  }
-
 }
 
 /**
@@ -821,34 +716,6 @@ function drawCoins() {
 }
 
 /**
- * This function generates a list of coins.
- */
-function createCoinList() {
-  placedCoins = [
-    placedCoin(600, 150),
-    placedCoin(700, 100),
-    placedCoin(800, 50),
-    placedCoin(900, 100),
-    placedCoin(1000, 150),
-    placedCoin(2600, 150),
-    placedCoin(2700, 100),
-    placedCoin(2800, 50),
-    placedCoin(2900, 100),
-    placedCoin(3000, 150),
-    placedCoin(3600, 150),
-    placedCoin(3700, 100),
-    placedCoin(3800, 50),
-    placedCoin(3900, 100),
-    placedCoin(4000, 150),
-    placedCoin(3600, 150),
-    placedCoin(3700, 100),
-    placedCoin(3800, 50),
-    placedCoin(3900, 100),
-    placedCoin(4000, 150),
-  ];
-}
-
-/**
  * This function generates the position of a coin.
  * 
  * 
@@ -860,21 +727,6 @@ function placedCoin(coin_x, coin_y) {
     'position_x': coin_x,
     'position_y': coin_y,
   }
-}
-
-/**
- *This function generates a list of bottles on the ground. 
- */
-function createBottleList() {
-  placedBottles = [
-    placedBottle(500, 1),
-    placedBottle(1000, 2),
-    placedBottle(1700, 1),
-    placedBottle(2500, 2),
-    placedBottle(2800, 2),
-    placedBottle(3300, 1),
-    placedBottle(3600, 2),
-  ];
 }
 
 /**
@@ -970,7 +822,7 @@ function checkForBoss() {
  */
 function bossAlerted() {
   if (bossIsAlerted) {
-    let index = bossGraphicIndex % bossAlertGraphics.length; 
+    let index = bossGraphicIndex % bossAlertGraphics.length;
     currentBossImage = bossAlertGraphics[index];
     bossGraphicIndex = bossGraphicIndex + 1;
 
@@ -989,13 +841,13 @@ function bossAlerted() {
  */
 function bossWalking() {
   if (bossIsWalking && bossIsFacingLeft) {
-    let index = bossGraphicIndex % bossWalkLeftGraphics.length; 
+    let index = bossGraphicIndex % bossWalkLeftGraphics.length;
     currentBossImage = bossWalkLeftGraphics[index];
     bossGraphicIndex = bossGraphicIndex + 1;
   }
 
   if (bossIsWalking && bossIsFacingRight) {
-    let index = bossGraphicIndex % bossWalkRightGraphics.length; 
+    let index = bossGraphicIndex % bossWalkRightGraphics.length;
     currentBossImage = bossWalkRightGraphics[index];
     bossGraphicIndex = bossGraphicIndex + 1;
   }
@@ -1006,7 +858,7 @@ function bossWalking() {
  */
 function bossAttacks() {
   if (bossIsAttacking && bossIsFacingLeft) {
-    index_attack = bossGraphicIndex % bossAttackLeftGraphics.length; 
+    index_attack = bossGraphicIndex % bossAttackLeftGraphics.length;
     currentBossImage = bossAttackLeftGraphics[index_attack];
     bossGraphicIndex = bossGraphicIndex + 1
 
@@ -1019,7 +871,7 @@ function bossAttacks() {
   }
 
   if (bossIsAttacking && bossIsFacingRight) {
-    index_attack = bossGraphicIndex % bossAttackRightGraphics.length; 
+    index_attack = bossGraphicIndex % bossAttackRightGraphics.length;
     currentBossImage = bossAttackRightGraphics[index_attack];
     bossGraphicIndex = bossGraphicIndex + 1
 
@@ -1082,7 +934,7 @@ function bossDead() {
     bossIsWalking = false;
     bossIsAttacking = false;
     bossIsHurt = false;
-    let index = bossGraphicIndex % bossDeadLeftGraphics.length; 
+    let index = bossGraphicIndex % bossDeadLeftGraphics.length;
     currentBossImage = bossDeadLeftGraphics[index];
     bossGraphicIndex = bossGraphicIndex + 1;
   }
@@ -1092,7 +944,7 @@ function bossDead() {
     bossIsWalking = false;
     bossIsAttacking = false;
     bossIsHurt = false;
-    let index = bossGraphicIndex % bossDeadRightGraphics.length; 
+    let index = bossGraphicIndex % bossDeadRightGraphics.length;
     currentBossImage = bossDeadRightGraphics[index];
     bossGraphicIndex = bossGraphicIndex + 1;
   }
@@ -1291,8 +1143,11 @@ function listenForKeys() {
  * This function moves the character to the right.
  */
 function moveright() {
-  isMovingRight = true;
-  lastKeyPressed = 0;
+  if (gamestart) {
+    isMovingRight = true;
+    lastKeyPressed = 0;
+    document.getElementById('arrow-right').classList.add('arrow-move');
+  }
 }
 
 /**
@@ -1301,14 +1156,18 @@ function moveright() {
 function stopmoveright() {
   isMovingRight = false;
   lastKeyPressed = new Date().getTime();
+  document.getElementById('arrow-right').classList.remove('arrow-move');
 }
 
 /**
  * This function moves the character to the left.
  */
 function moveleft() {
-  isMovingLeft = true;
-  lastKeyPressed = 0;
+  if (gamestart) {
+    isMovingLeft = true;
+    lastKeyPressed = 0;
+    document.getElementById('arrow-left').classList.add('arrow-move');
+  }
 }
 
 /**
@@ -1317,18 +1176,22 @@ function moveleft() {
 function stopmoveleft() {
   isMovingLeft = false;
   lastKeyPressed = new Date().getTime();
+  document.getElementById('arrow-left').classList.remove('arrow-move');
 }
 
 /**
  * This function makes the character jump.
  */
 function jump() {
-  let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
-  if (timePassedSinceJump > JUMP_TIME * 2) {
-    lastKeyPressed = 0;
-    isJumping = true;
-    AUDIO_JUMP.play();
-    lastJumpStarted = new Date().getTime();
+  if (gamestart) {
+    let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+    if (timePassedSinceJump > JUMP_TIME * 2) {
+      lastKeyPressed = 0;
+      isJumping = true;
+      AUDIO_JUMP.play();
+      lastJumpStarted = new Date().getTime();
+      document.getElementById('arrow-up').classList.add('arrow-move');
+    }
   }
 }
 
@@ -1337,6 +1200,7 @@ function jump() {
  */
 function stopjump() {
   lastKeyPressed = new Date().getTime();
+  document.getElementById('arrow-up').classList.remove('arrow-move');
   if (isMovingRight || isMovingLeft) {
     lastKeyPressed = 0;
   }
@@ -1352,6 +1216,7 @@ function throwbottle() {
     lastKeyPressed = 0;
 
     if (passedTime > 2500 && !isThrowingLeft && !isThrowingRight) {
+      document.getElementById('bottle').classList.add('arrow-move');
       if (isFacingRight) {
         isThrowingRight = true;
       }
@@ -1376,6 +1241,7 @@ function throwbottle() {
  */
 function stopthrowbottle() {
   lastKeyPressed = new Date().getTime();
+  document.getElementById('bottle').classList.remove('arrow-move');
 }
 
 /**
@@ -1383,7 +1249,7 @@ function stopthrowbottle() {
  */
 function restart() {
   location.reload();
-  loadGame();
+  loadLevel1();
 }
 
 /**
@@ -1482,7 +1348,16 @@ function openFullscreen() {
   } else if (canvasContainer.msRequestFullscreen) { /* IE11 */
     canvasContainer.msRequestFullscreen();
   }
+
+  // if (screen.orientation.type === "portrait-primary") {
+  //   img = document.getElementById('canvasContainer').style.transform = 'rotate(90deg)';
+  // }
+
 }
+
+// screen.orientation.addEventListener('load', function () {
+//   console.log('Current orientation is ' + screen.orientation.type);
+// });
 
 /**
  * This function closes the fullscreen.
@@ -1508,12 +1383,30 @@ function closeFullscreenWindow() {
 }
 
 /**
- * This function animated the movement buttons.
+ * This function prevents propagation.
+ * 
+ * @param {object} event 
  */
-function transform() {
-  document.getElementById('arrow-right').classList.add('arrow-move');
-  setTimeout(function () {
-    document.getElementById('arrow-right').classList.remove('arrow-move');
-  }, 225);
-}
+window.oncontextmenu = function (event) {
 
+  if ((screen.width < 1000)) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+  }
+
+};
+
+/**
+ * This function checks if the screen orientation is landscape.
+ */
+window.addEventListener("resize", checkForScreenOrientation);
+function checkForScreenOrientation() {
+  var orientation = (screen.orientation || {}).type || screen.mozOrientation || screen.msOrientation;
+
+  if (screen.width < 1000 && (orientation === "portrait-secondary" || orientation === "portrait-primary")) {
+    alert("Please rotate the display.");
+  } else if (orientation === undefined) {
+    alert("The orientation API isn't supported in this browser :(");
+  }
+}

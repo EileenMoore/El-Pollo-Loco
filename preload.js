@@ -44,6 +44,8 @@ function preloadImages() {
 
 /**
    * Check if background-image is already loaded in cache; if not, create new image
+   * 
+   * 
    * @param {string} src_path - scr-path of background-image 
    */
 function checkBackgroundImageCache(src_path) {

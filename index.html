@@ -5,8 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" type="image/x-icon" href="img/icon.png">
+    <!-- <link rel="manifest" href="manifest.json"> -->
     <script src="preload.js"></script>
     <script src="game.js"></script>
+    <script src="level2.js"></script>
+    <script src="level1.js"></script>
+
     <title>El Pollo Loco</title>
 </head>
 
@@ -23,7 +28,7 @@
         <div id="level-description" class="level-description d-none">
             <h2>LEVEL 1</h2>
             <span>Collect all the coins and kill the chicken boss with the tabasco bottles!</span>
-            <button onclick="loadGame()">OK</button>
+            <button onclick="loadLevel1()">OK</button>
         </div>
 
         <div class="fullscreen-window level-description" id="fullscreen-window">
@@ -38,10 +43,10 @@
         <img id="exit-icon" class="expand-icon d-none" src="img/exit-32.ico" onclick="closeFullscreen()">
 
         <div class="arrows">
-            <img id="bottle" class="arrow arrow-move" src="img/bottle-64.ico" ontouchstart="transform(); throwbottle()" ontouchend="stopthrowbottle()">
-            <img id="arrow-left" class="arrow arrow-move" src="img/arrow-left.ico"  ontouchstart="transform(); moveleft()" ontouchend="stopmoveleft()">
-            <img id="arrow-up" class="arrow arrow-move" src="img/arrow-up.ico" ontouchstart="transform(); jump()" ontouchend="stopjump()">
-            <img id="arrow-right" class="arrow arrow-move" src="img/arrow-right.ico" ontouchstart="transform(); moveright()" ontouchend="stopmoveright()">
+            <img id="bottle" class="arrow" src="img/bottle-64.ico" ontouchstart="throwbottle()" ontouchend="stopthrowbottle()">
+            <img id="arrow-left" class="arrow" src="img/arrow-left.ico"  ontouchstart="moveleft()" ontouchend="stopmoveleft()">
+            <img id="arrow-up" class="arrow" src="img/arrow-up.ico" ontouchstart="jump()" ontouchend="stopjump()">
+            <img id="arrow-right" class="arrow" src="img/arrow-right.ico" ontouchstart="moveright()" ontouchend="stopmoveright()">
         </div>
 
     </div>
