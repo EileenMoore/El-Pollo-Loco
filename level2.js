@@ -31,6 +31,8 @@ function loadLevel2() {
   createBottleList2();
   createCoinList2();
   createHenList2();
+  createJumpBarList();
+  AUDIO_FINAL_BOSS.muted = true;
 }
 
 /**

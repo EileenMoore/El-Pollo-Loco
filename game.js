@@ -11,6 +11,7 @@ let bg_shadows = 0;
 let isMovingRight = false;
 let isMovingLeft = false;
 let isJumping = false;
+let isJumpingUp = false;
 let lastJumpStarted = 0;
 let isFacingRight = true;
 let isFacingLeft = false;
@@ -18,6 +19,9 @@ let isFallingDown = false;
 let isSleeping = false;
 let isThrowingRight = false;
 let isThrowingLeft = false;
+let startHeight;
+let currentJumpbar;
+let isUp = false;
 let isHurt = false;
 let isDead = false;
 let lastStandStarted = 0;
@@ -84,8 +88,8 @@ let placedCoins = [];
 let collectedBottles = 0;
 let collectedCoins = 0;
 let bottleThrowTime = 0;
-let thrownBottle_x = 0;
-let thrownBottel_y = 0;
+let thrownBottle_x = 10000;
+let thrownBottel_y = 10000;
 let bottleIsBroken = false;
 let bossDefeatedAt = 0;
 let game_finished = false;
@@ -93,6 +97,7 @@ let lastKeyPressed = 0;
 let gamestart = false;
 let level1 = false;
 let level2 = false;
+let jumpBars = [];
 
 let musicIsOn = true;
 let musicIsOff = false;
@@ -128,14 +133,11 @@ AUDIO_BACKGROUND_MUSIC.volume = 0.2;
 */
 function loadGame() {
   game_finished = false;
-  gamestart = true;
-  document.getElementById('level-description').classList.add('d-none');
   AUDIO_BACKGROUND_MUSIC.play();
-  createChickenList1();
-  createBottleList1();
-  createCoinList1();
-  createHenList1();
+  lastKeyPressed = new Date().getTime();
   createCharacter();
+  // checkCharacterPosition();
+  checkIsFallingDown();
   checkForSleep();
   checkForRunning();
   checkForJump();
@@ -152,10 +154,83 @@ function loadGame() {
   calculateChickenPosition();
   calculateHenPosition();
   checkForCollision();
-  lastKeyPressed = new Date().getTime();
   checkIfGameIsFinished();
-  drawFinalScreen1();
+  drawFinalScreen1(); //block level 1!!!
 }
+
+function checkIsFallingDown() {
+
+  setInterval(function () {
+    for (let index = 0; index < jumpBars.length; index++) {
+      let jumpbar = jumpBars[index];
+      let jumpbar_start_x = jumpbar.position_x - 50 + bg_ground;
+      let jumpbar_end_x = jumpbar.position_x + jumpbar.length - 50 + bg_ground;
+      let jumpbar_index = index;
+
+      // console.log('character ' + character_x);
+      // console.log('jumpbar ' + index);
+      // console.log('start ' + jumpbar_start_x);
+      // console.log('end ' + jumpbar_end_x);
+      console.log(currentJumpbar);
+
+
+      if (character_y < 150) {
+        if ((jumpbar_index == currentJumpbar) && (character_x < jumpbar_start_x || character_x > jumpbar_end_x)) {
+          isUp = false;
+          isFallingDown = true;
+          console.log('test');
+        }
+      }
+    }
+
+  }, 100);
+
+}
+
+// function checkCharacterPosition() {
+//   setInterval(function () {
+
+//     for (let index = 0; index < jumpBars.length; index++) {
+//       let jumpbar = jumpBars[index];
+//       let jumpbar_start_x = jumpbar.position_x + bg_ground;
+//       let jumpbar_end_x = jumpbar.position_x + jumpbar.length + bg_ground;
+//       let jumpbar_y = jumpbar.position_y;
+//       let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+
+//       console.log('jumpbar1 ' + jumpBars[0].position_y);
+//       console.log('jumpbar2 ' + jumpBars[1].position_y);
+//       console.log('jumpbar3 ' + jumpBars[2].position_y);
+//       console.log('jumpbar4 ' + jumpBars[3].position_y);
+//       console.log('pepe_y ' + character_y);
+
+//       if (timePassedSinceJump < 350 && !isFallingDown) {
+//         character_y = character_y - 10;
+//         if (character_y < startHeight - 100) {
+//           isFallingDown = true;
+//         }
+//       }
+
+//       if (isFallingDown) {
+//         character_y = character_y + 10;
+//         if (character_y > 150) {
+//           character_y = 150;
+//           isFallingDown = false;
+//         }
+//         if (character_x > jumpbar_start_x && character_x < jumpbar_end_x && character_y + 200 < jumpbar_y && character_y + 200 > jumpbar_y - 100) {
+//           character_y = jumpbar_y - 200;
+//           isUp = true;
+//           isFallingDown = false;
+//         }
+//       }
+
+//       if (isUp && (character_x < jumpbar_start_x || character_x > jumpbar_end_x)) {
+//         isUp = false;
+//         isFallingDown = true;
+//       }
+//     }
+
+//   }, 100);
+// }
 
 /**
  * This function checks for collision of the character.
@@ -163,27 +238,12 @@ function loadGame() {
 function checkForCollision() {
 
   setInterval(function () {
-
     checkForHenCollision();
     checkForChickenCollission();
     checkForBottleCollection();
     checkForCoinCollection();
     checkForBossCollision();
-    checkForJumpBarCollision();
-
   }, 100);
-}
-
-function checkForJumpBarCollision() {
-
-  console.log(character_x);
-  console.log(250 + bg_ground);
-  console.log(400 + bg_ground);
-
-  if (character_x > 300 + bg_ground && character_x < 400 + bg_ground && character_y < 100 ) {
-    character_y = 72;
-    isJumping = false;
-  }
 }
 
 /**
@@ -407,13 +467,13 @@ function calculateCloudOffset() {
 function createCharacter() {
   setInterval(function () {
 
-    if (isFacingRight && !isMovingRight && !isMovingLeft && !isHurt && !isJumping) {
+    if (isFacingRight && !isMovingRight && !isMovingLeft && !isHurt && !isJumping && !isSleeping) {
       let index = characterGraphicIndex % characterGraphicsStandRight.length;
       currentCharacterImage = characterGraphicsStandRight[index];
       characterGraphicIndex = characterGraphicIndex + 1;
 
     }
-    if (isFacingLeft && !isMovingRight && !isMovingLeft && !isHurt && !isJumping) {
+    if (isFacingLeft && !isMovingRight && !isMovingLeft && !isHurt && !isJumping && !isSleeping) {
       let index = characterGraphicIndex % characterGraphicsStandLeft.length;
       currentCharacterImage = characterGraphicsStandLeft[index];
       characterGraphicIndex = characterGraphicIndex + 1;
@@ -647,11 +707,32 @@ function draw() {
 }
 
 function drawJumpBars() {
-  ctx.fillStyle = "black";
-  ctx.fillRect(350 + bg_ground, 300, 100, 25);
+
+  for (let index = 0; index < jumpBars.length; index++) {
+    let jumpBar = jumpBars[index];
+
+    ctx.fillStyle = "black";
+    ctx.fillRect(jumpBar.position_x + bg_ground, jumpBar.position_y, jumpBar.length, 15);
+  }
 
 }
 
+function createJumpBarList() {
+  jumpBars = [
+    createJumpBars(350, 300, 100),
+    createJumpBars(550, 250, 100),
+    createJumpBars(750, 200, 100),
+    createJumpBars(950, 300, 100)
+  ]
+}
+
+function createJumpBars(x, y, length) {
+  return {
+    'position_x': x,
+    'position_y': y,
+    'length': length
+  }
+}
 /**
  * This function draws the chicken boss on the canvas.
  */
@@ -1027,29 +1108,126 @@ function createChicken(position_x) {
   };
 }
 
-/**
- * This function  draws the character.
- */
+// /**
+//  * This function draws the character.
+//  */
+// function updateCharacter() {
+//   let base_image = checkBackgroundImageCache(currentCharacterImage);
+
+//   if (isJumpingUp) {
+//     character_y = character_y - 10;
+//     if (character_y < startHeight - 100) {
+//       isJumpingUp = false;
+//       isFallingDown = true;
+//     }
+//   }
+
+//   for (let index = 0; index < jumpBars.length; index++) {
+//     let jumpbar = jumpBars[index];
+//     let jumpbar_start_x = jumpbar.position_x + bg_ground;
+//     let jumpbar_end_x = jumpbar.position_x + jumpbar.length + bg_ground;
+//     let jumpbar_y = jumpbar.position_y;
+//     let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+
+//     if (isFallingDown) {
+//       character_y = character_y + 10;
+//       if (character_x > jumpbar_start_x && character_x < jumpbar_end_x && character_y + 200 < jumpbar_y && character_y + 200 > jumpbar_y - 100) {
+//         character_y = jumpbar_y;
+//         isUp = true;
+//         setTimeout(function () {
+//           isFallingDown = false;
+//         }, 100);
+//       } else if (character_y > 150) {
+//         character_y = 150;
+//         setTimeout(function () {
+//           isFallingDown = false;
+//         }, JUMP_TIME);
+//       }
+//     }
+
+//     if ((character_x < jumpbar_start_x + bg_ground || character_x > jumpbar_end_x + bg_ground) && isUp) {
+//       isUp = false;
+//       isFallingDown = true;
+//     }
+//   }
+
+//   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.2, base_image.height * 0.2);
+// }
+
 function updateCharacter() {
   let base_image = checkBackgroundImageCache(currentCharacterImage);
   let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
-  if (timePassedSinceJump < JUMP_TIME) {
+  let jumpbar1_start_x = 350;
+  let jumpbar1_end_x = 450;
+  let jumpbar1_y = 300 - 200;
+
+  let jumpbar2_start_x = 550;
+  let jumpbar2_end_x = 650;
+  let jumpbar2_y = 250 - 200;
+
+  let jumpbar3_start_x = 750;
+  let jumpbar3_end_x = 850;
+  let jumpbar3_y = 200 - 200;
+
+  let jumpbar4_start_x = 950;
+  let jumpbar4_end_x = 1050;
+  let jumpbar4_y = 300 - 200;
+
+  console.log('up ' + isJumpingUp);
+  console.log('down ' + isFallingDown);
+
+  if (isJumpingUp && !isFallingDown) {
     character_y = character_y - 10;
-  } else {
-
-    //check falling 
-    if (character_y < 150 && isJumping) {
-      character_y = character_y + 10;
+    if (character_y < startHeight - 150) {
+      isJumpingUp = false;
       isFallingDown = true;
-
-      setTimeout(function () {
-        isFallingDown = false;
-      }, JUMP_TIME);
     }
   }
+
+  if (isFallingDown) {
+    character_y = character_y + 10;
+    if (character_x > jumpbar1_start_x - 50 + bg_ground && character_x < jumpbar1_end_x - 50 + bg_ground && character_y < jumpbar1_y) {
+      character_y = jumpbar1_y - 28;
+      isUp = true;
+      currentJumpbar = 0;
+
+        isFallingDown = false;
+
+    }
+    if (character_x > jumpbar2_start_x - 50 + bg_ground && character_x < jumpbar2_end_x - 50+ bg_ground && character_y < jumpbar2_y) {
+      character_y = jumpbar2_y - 28;
+      isUp = true;
+      currentJumpbar = 1;
+        isFallingDown = false;
+
+    }
+    if (character_x > jumpbar3_start_x - 50 + bg_ground && character_x < jumpbar3_end_x - 50 + bg_ground && character_y < jumpbar3_y) {
+      character_y = jumpbar3_y - 28;
+      isUp = true;
+      currentJumpbar = 2;
+        isFallingDown = false;
+
+    }
+    if (character_x > jumpbar4_start_x - 50 + bg_ground && character_x < jumpbar4_end_x - 50 + bg_ground && character_y < jumpbar4_y) {
+      character_y = jumpbar4_y - 28;
+      isUp = true;
+      currentJumpbar = 3;
+        isFallingDown = false;
+
+    }
+    else if (character_y > 150) {
+      character_y = 150;
+      currentJumpbar = 10; 
+      setTimeout(function () {
+        isFallingDown = false;
+      }, 200);
+    }
+  }
+
   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.2, base_image.height * 0.2);
 }
+
 
 /**
  * This function draws the background.
@@ -1249,9 +1427,11 @@ function jump() {
     if (timePassedSinceJump > JUMP_TIME * 2) {
       lastKeyPressed = 0;
       isJumping = true;
+      isJumpingUp = true;
       AUDIO_JUMP.play();
       lastJumpStarted = new Date().getTime();
       document.getElementById('arrow-up').classList.add('arrow-move');
+      startHeight = character_y;
     }
   }
 }

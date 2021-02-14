@@ -18,6 +18,15 @@ function showDescription() {
     document.getElementById('level-description').classList.remove('d-none');
 }
 
+function loadLevel1() {
+    gamestart = true;
+    document.getElementById('level-description').classList.add('d-none');
+    createChickenList1();
+    createBottleList1();
+    createCoinList1();
+    createHenList1();
+  }
+
 /**
 * This creates a list of chickens.
 */
@@ -81,8 +90,6 @@ function createBottleList1() {
         placedBottle(1700, 1),
         placedBottle(2500, 2),
         placedBottle(2800, 2),
-        placedBottle(3300, 1),
-        placedBottle(3600, 2),
     ];
 }
 
