@@ -165,14 +165,7 @@ function checkIsFallingDown() {
       let jumpbar = jumpBars[index];
       let jumpbar_start_x = jumpbar.position_x - 50 + bg_ground;
       let jumpbar_end_x = jumpbar.position_x + jumpbar.length - 50 + bg_ground;
-      let jumpbar_index = index;
-
-      // console.log('character ' + character_x);
-      // console.log('jumpbar ' + index);
-      // console.log('start ' + jumpbar_start_x);
-      // console.log('end ' + jumpbar_end_x);
-      console.log(currentJumpbar);
-
+      let jumpbar_index = index + 1;
 
       if (character_y < 150) {
         if ((jumpbar_index == currentJumpbar) && (character_x < jumpbar_start_x || character_x > jumpbar_end_x)) {
@@ -688,6 +681,8 @@ function draw() {
   drawBackground();
   if (game_finished && level1) {
     drawFinalScreen1();
+  } if (game_finished && level2) {
+    drawFinalScreen2();
   } else {
     updateCharacter();
     drawChicken();
@@ -715,15 +710,6 @@ function drawJumpBars() {
     ctx.fillRect(jumpBar.position_x + bg_ground, jumpBar.position_y, jumpBar.length, 15);
   }
 
-}
-
-function createJumpBarList() {
-  jumpBars = [
-    createJumpBars(350, 300, 100),
-    createJumpBars(550, 250, 100),
-    createJumpBars(750, 200, 100),
-    createJumpBars(950, 300, 100)
-  ]
 }
 
 function createJumpBars(x, y, length) {
@@ -1111,118 +1097,38 @@ function createChicken(position_x) {
 // /**
 //  * This function draws the character.
 //  */
-// function updateCharacter() {
-//   let base_image = checkBackgroundImageCache(currentCharacterImage);
-
-//   if (isJumpingUp) {
-//     character_y = character_y - 10;
-//     if (character_y < startHeight - 100) {
-//       isJumpingUp = false;
-//       isFallingDown = true;
-//     }
-//   }
-
-//   for (let index = 0; index < jumpBars.length; index++) {
-//     let jumpbar = jumpBars[index];
-//     let jumpbar_start_x = jumpbar.position_x + bg_ground;
-//     let jumpbar_end_x = jumpbar.position_x + jumpbar.length + bg_ground;
-//     let jumpbar_y = jumpbar.position_y;
-//     let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
-
-//     if (isFallingDown) {
-//       character_y = character_y + 10;
-//       if (character_x > jumpbar_start_x && character_x < jumpbar_end_x && character_y + 200 < jumpbar_y && character_y + 200 > jumpbar_y - 100) {
-//         character_y = jumpbar_y;
-//         isUp = true;
-//         setTimeout(function () {
-//           isFallingDown = false;
-//         }, 100);
-//       } else if (character_y > 150) {
-//         character_y = 150;
-//         setTimeout(function () {
-//           isFallingDown = false;
-//         }, JUMP_TIME);
-//       }
-//     }
-
-//     if ((character_x < jumpbar_start_x + bg_ground || character_x > jumpbar_end_x + bg_ground) && isUp) {
-//       isUp = false;
-//       isFallingDown = true;
-//     }
-//   }
-
-//   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.2, base_image.height * 0.2);
-// }
-
 function updateCharacter() {
   let base_image = checkBackgroundImageCache(currentCharacterImage);
   let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
-  let jumpbar1_start_x = 350;
-  let jumpbar1_end_x = 450;
-  let jumpbar1_y = 300 - 200;
-
-  let jumpbar2_start_x = 550;
-  let jumpbar2_end_x = 650;
-  let jumpbar2_y = 250 - 200;
-
-  let jumpbar3_start_x = 750;
-  let jumpbar3_end_x = 850;
-  let jumpbar3_y = 200 - 200;
-
-  let jumpbar4_start_x = 950;
-  let jumpbar4_end_x = 1050;
-  let jumpbar4_y = 300 - 200;
-
-  console.log('up ' + isJumpingUp);
-  console.log('down ' + isFallingDown);
-
   if (isJumpingUp && !isFallingDown) {
-    character_y = character_y - 10;
-    if (character_y < startHeight - 150) {
+    character_y = character_y - 7;
+    if (timePassedSinceJump > 350) {
       isJumpingUp = false;
       isFallingDown = true;
     }
   }
 
-  if (isFallingDown) {
-    character_y = character_y + 10;
-    if (character_x > jumpbar1_start_x - 50 + bg_ground && character_x < jumpbar1_end_x - 50 + bg_ground && character_y < jumpbar1_y) {
-      character_y = jumpbar1_y - 28;
-      isUp = true;
-      currentJumpbar = 0;
+  for (let index = 0; index < jumpBars.length; index++) {
+    let jumpbar = jumpBars[index];
+    let jumpbar_start_x = jumpbar.position_x - 50 + bg_ground;
+    let jumpbar_end_x = jumpbar.position_x - 50 + jumpbar.length + bg_ground;
+    let jumpbar_y = jumpbar.position_y - 200;
 
+    if (isFallingDown) {
+      character_y = character_y + 7;
+      if (character_x > jumpbar_start_x && character_x < jumpbar_end_x && character_y < jumpbar_y) {
+        character_y = jumpbar_y - 28;
+        isUp = true;
         isFallingDown = false;
+        currentJumpbar = index + 1;
+      } else if (character_y > 150) {
+        character_y = 150;
+        currentJumpbar = 0;
+        isFallingDown = false;
+      }
+    }
 
-    }
-    if (character_x > jumpbar2_start_x - 50 + bg_ground && character_x < jumpbar2_end_x - 50+ bg_ground && character_y < jumpbar2_y) {
-      character_y = jumpbar2_y - 28;
-      isUp = true;
-      currentJumpbar = 1;
-        isFallingDown = false;
-
-    }
-    if (character_x > jumpbar3_start_x - 50 + bg_ground && character_x < jumpbar3_end_x - 50 + bg_ground && character_y < jumpbar3_y) {
-      character_y = jumpbar3_y - 28;
-      isUp = true;
-      currentJumpbar = 2;
-        isFallingDown = false;
-
-    }
-    if (character_x > jumpbar4_start_x - 50 + bg_ground && character_x < jumpbar4_end_x - 50 + bg_ground && character_y < jumpbar4_y) {
-      character_y = jumpbar4_y - 28;
-      isUp = true;
-      currentJumpbar = 3;
-        isFallingDown = false;
-
-    }
-    else if (character_y > 150) {
-      character_y = 150;
-      currentJumpbar = 10; 
-      setTimeout(function () {
-        isFallingDown = false;
-      }, 200);
-    }
   }
 
   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.2, base_image.height * 0.2);

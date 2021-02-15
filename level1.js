@@ -37,7 +37,7 @@ function createChickenList1() {
         createChicken(3000),
         createChicken(3300),
         createChicken(3800),
-        createChicken(4500),
+        createChicken(4500)
     ];
 }
 
@@ -48,7 +48,7 @@ function createHenList1() {
     hens = [
         createChicken(1400),
         createChicken(2500),
-        createChicken(4200),
+        createChicken(4200)
     ];
 }
 
@@ -76,7 +76,7 @@ function createCoinList1() {
         placedCoin(3700, 100),
         placedCoin(3800, 50),
         placedCoin(3900, 100),
-        placedCoin(4000, 150),
+        placedCoin(4000, 150)
     ];
 }
 
@@ -89,7 +89,7 @@ function createBottleList1() {
         placedBottle(1000, 2),
         placedBottle(1700, 1),
         placedBottle(2500, 2),
-        placedBottle(2800, 2),
+        placedBottle(2800, 2)
     ];
 }
 
