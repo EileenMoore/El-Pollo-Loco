@@ -17,6 +17,7 @@ function startLevel2() {
   level2 = true;
   BOSS_POSITION = 10000;
 
+
   document.getElementById('level-description').innerHTML = `
   <h2>LEVEL 2</h2>
   <span>Collect all the coins!</span>
@@ -28,19 +29,44 @@ function loadLevel2() {
   gamestart = true;
   document.getElementById('level-description').classList.add('d-none');
   createChickenList2();
-  createBottleList2();
   createCoinList2();
   createHenList2();
   createJumpBarList();
+  createAlternatingHenList();
   AUDIO_FINAL_BOSS.muted = true;
 }
 
+function createAlternatingHenList() {
+
+  alternatingHens = [
+    createAlternatingHen(1950, 212)
+  ];
+
+}
+
+/**
+ * This function generates the alternate moving hens.
+ * 
+ * 
+ * @param {integer} position_x - Position on the x-axis.
+ */
+function createAlternatingHen(position_x, position_y) {
+  return {
+    'start_position': position_x,
+    'position_x': position_x,
+    'position_y': position_y,
+    'scale': 0.28,
+    'speed': 3,
+    'dead': false
+  };
+}
 
 function createJumpBarList() {
   jumpBars = [
     createJumpBars(440, 300, 100),
     createJumpBars(570, 250, 100),
     createJumpBars(700, 200, 200),
+    createJumpBars(1700, 275, 300),
     // createJumpBars(500, 300, 250),
     // createJumpBars(1500, 300, 250),
     // createJumpBars(2500, 300, 250),
@@ -91,12 +117,14 @@ function createCoinList2() {
     placedCoin(700, 0),
     placedCoin(750, 0),
     placedCoin(800, 0),
-    placedCoin(850, 0)
-    // placedCoin(450, 100),
-    // placedCoin(500, 100),
-    // placedCoin(550, 100),
-    // placedCoin(600, 100),
-    // placedCoin(650, 100),
+    placedCoin(850, 0),
+
+    placedCoin(1650, 50),
+    placedCoin(1700, 50),
+    placedCoin(1750, 50),
+    placedCoin(1800, 50),
+    placedCoin(1850, 50),
+    placedCoin(1900, 50),
 
     // placedCoin(1450, 100),
     // placedCoin(1500, 100),
@@ -115,15 +143,6 @@ function createCoinList2() {
     // placedCoin(3750, 0),
     // placedCoin(3800, 0),
     // placedCoin(3850, 0)
-  ];
-}
-
-/**
-*This function generates a list of bottles on the ground. 
-*/
-function createBottleList2() {
-  placedBottles = [
-
   ];
 }
 

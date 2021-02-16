@@ -14,6 +14,7 @@ let imagePaths = [
     './img/pepe/J-40.png',
     './img/chicken/chicken1.png', './img/chicken/chicken2.png', './img/chicken/chicken3.png', 'img/chicken/chicken_dead.png',
     './img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png', 'img/chicken/hen_dead.png',
+    './img/chicken/henR1.png', './img/chicken/henR2.png', './img/chicken/henR3.png', 'img/chicken/hen_deadR.png',
     './img/boss/G1.png', './img/boss/G2.png', './img/boss/G3.png', './img/boss/G4.png',
     './img/boss/GR1.png', './img/boss/GR2.png', './img/boss/GR3.png', './img/boss/GR4.png',
     './img/boss/G5.png', './img/boss/G6.png', './img/boss/G7.png', './img/boss/G8.png', './img/boss/G9.png', './img/boss/G10.png', './img/boss/G11.png', './img/boss/G12.png',

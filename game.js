@@ -19,7 +19,6 @@ let isFallingDown = false;
 let isSleeping = false;
 let isThrowingRight = false;
 let isThrowingLeft = false;
-let startHeight;
 let currentJumpbar;
 let isUp = false;
 let isHurt = false;
@@ -52,7 +51,8 @@ let chickenGraphics = ['./img/chicken/chicken1.png', './img/chicken/chicken2.png
 let chickenGraphicIndex = 0;
 let currentHenImage = './img/chicken/hen1.png';
 let hens = [];
-let hensGraphics = ['./img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png'];
+let hensGraphicsLeft = ['./img/chicken/hen1.png', './img/chicken/hen2.png', './img/chicken/hen3.png'];
+let hensGraphicsRight = ['./img/chicken/henR1.png', './img/chicken/henR2.png', './img/chicken/henR3.png'];
 let hensGraphicIndex = 0;
 let currentBossImage = './img/boss/G5.png';
 let bossAlertGraphics = ['./img/boss/G5.png', './img/boss/G6.png', './img/boss/G7.png', './img/boss/G8.png', './img/boss/G9.png', './img/boss/G10.png', './img/boss/G11.png', './img/boss/G12.png'];
@@ -98,6 +98,10 @@ let gamestart = false;
 let level1 = false;
 let level2 = false;
 let jumpBars = [];
+let alternatingHens = [];
+let henIsFacingLeft = true;
+let henIsFacingRight = false;
+let currentAlternatingHenImage = './img/chicken/hen1.png';
 
 let musicIsOn = true;
 let musicIsOff = false;
@@ -136,7 +140,6 @@ function loadGame() {
   AUDIO_BACKGROUND_MUSIC.play();
   lastKeyPressed = new Date().getTime();
   createCharacter();
-  // checkCharacterPosition();
   checkIsFallingDown();
   checkForSleep();
   checkForRunning();
@@ -145,6 +148,7 @@ function loadGame() {
   checkIfDead();
   checkForChicken();
   checkForHens();
+  checkForAlternatingHens();
   checkForBoss();
   checkBossEnergy();
   checkForBottle();
@@ -153,6 +157,7 @@ function loadGame() {
   listenForKeys();
   calculateChickenPosition();
   calculateHenPosition();
+  calculateAlternatingHenPosition()
   checkForCollision();
   checkIfGameIsFinished();
   drawFinalScreen1(); //block level 1!!!
@@ -171,7 +176,6 @@ function checkIsFallingDown() {
         if ((jumpbar_index == currentJumpbar) && (character_x < jumpbar_start_x || character_x > jumpbar_end_x)) {
           isUp = false;
           isFallingDown = true;
-          console.log('test');
         }
       }
     }
@@ -179,51 +183,6 @@ function checkIsFallingDown() {
   }, 100);
 
 }
-
-// function checkCharacterPosition() {
-//   setInterval(function () {
-
-//     for (let index = 0; index < jumpBars.length; index++) {
-//       let jumpbar = jumpBars[index];
-//       let jumpbar_start_x = jumpbar.position_x + bg_ground;
-//       let jumpbar_end_x = jumpbar.position_x + jumpbar.length + bg_ground;
-//       let jumpbar_y = jumpbar.position_y;
-//       let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
-
-//       console.log('jumpbar1 ' + jumpBars[0].position_y);
-//       console.log('jumpbar2 ' + jumpBars[1].position_y);
-//       console.log('jumpbar3 ' + jumpBars[2].position_y);
-//       console.log('jumpbar4 ' + jumpBars[3].position_y);
-//       console.log('pepe_y ' + character_y);
-
-//       if (timePassedSinceJump < 350 && !isFallingDown) {
-//         character_y = character_y - 10;
-//         if (character_y < startHeight - 100) {
-//           isFallingDown = true;
-//         }
-//       }
-
-//       if (isFallingDown) {
-//         character_y = character_y + 10;
-//         if (character_y > 150) {
-//           character_y = 150;
-//           isFallingDown = false;
-//         }
-//         if (character_x > jumpbar_start_x && character_x < jumpbar_end_x && character_y + 200 < jumpbar_y && character_y + 200 > jumpbar_y - 100) {
-//           character_y = jumpbar_y - 200;
-//           isUp = true;
-//           isFallingDown = false;
-//         }
-//       }
-
-//       if (isUp && (character_x < jumpbar_start_x || character_x > jumpbar_end_x)) {
-//         isUp = false;
-//         isFallingDown = true;
-//       }
-//     }
-
-//   }, 100);
-// }
 
 /**
  * This function checks for collision of the character.
@@ -236,8 +195,41 @@ function checkForCollision() {
     checkForBottleCollection();
     checkForCoinCollection();
     checkForBossCollision();
+    checkForAlternatingHenCollision();
   }, 100);
 }
+
+function checkForAlternatingHenCollision() {
+  for (let index = 0; index < alternatingHens.length; index++) {
+    let hen = alternatingHens[index];
+    let hen_x = hen.position_x + bg_ground;
+    let hen_y = hen.position_y;
+
+    console.log('hen y ' + hen_y);
+    console.log('pepe y ' + character_y);
+
+    if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead && character_y > hen_y - 165 - 40 && isFallingDown) {
+      AUDIO_CRACK.play();
+      hen.dead = true;
+    }
+    if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead && character_y > hen_y - 165 - 20) {
+      if (character_energy > 0) {
+        if (timePassedSinceHurt > 2 * HURT_TIME) {
+          isHurt = true;
+          AUDIO_HURT.play();
+          lastHurtStarted = new Date().getTime();
+          character_energy -= 10;
+        }
+      } else {
+        isDead = true;
+        ishurt = false;
+        deadStarted = new Date().getTime();
+      }
+    }
+  }
+
+}
+
 
 /**
  * This function checks for collision between the character and the hens.
@@ -443,6 +435,37 @@ function calculateHenPosition() {
     }
   }, 50);
 
+}
+
+
+function calculateAlternatingHenPosition() {
+  setInterval(function () {
+
+    for (let i = 0; i < alternatingHens.length; i++) {
+      let hen = alternatingHens[i];;
+
+
+      if (hen.position_x < hen.start_position - 250) {
+        henIsFacingLeft = false;
+        henIsFacingRight = true;
+      }
+      if (hen.position_x > hen.start_position) {
+        henIsFacingLeft = true;
+        henIsFacingRight = false;
+      }
+
+      if (!hen.dead) {
+        if (henIsFacingLeft) {
+          hen.position_x = hen.position_x - hen.speed;
+        }
+        if (henIsFacingRight) {
+          hen.position_x = hen.position_x + hen.speed;
+        }
+
+      }
+
+    }
+  }, 50);
 }
 
 /**
@@ -696,8 +719,32 @@ function draw() {
     }
     if (level2) {
       drawJumpBars();
+      drawAlternatingHens();
     }
   }
+
+}
+
+function drawAlternatingHens() {
+
+  for (let i = 0; i < alternatingHens.length; i++) {
+    let hen = alternatingHens[i];
+    let image = currentAlternatingHenImage;
+
+    if (hen.dead) {
+      if (henIsFacingLeft) {
+        image = 'img/chicken/hen_dead.png';
+      }
+      if (henIsFacingRight) {
+        image = 'img/chicken/hen_deadR.png';
+      }
+
+    }
+
+
+    addBackgroundobject(image, hen.position_x, bg_ground, hen.position_y, hen.scale, 1);
+  }
+
 
 }
 
@@ -921,9 +968,29 @@ function checkForChicken() {
 function checkForHens() {
   setInterval(function () {
 
-    let index = hensGraphicIndex % hensGraphics.length; //Infinite loop
-    currentHenImage = hensGraphics[index];
+    let index = hensGraphicIndex % hensGraphicsLeft.length; //Infinite loop
+    currentHenImage = hensGraphicsLeft[index];
     hensGraphicIndex = hensGraphicIndex + 1;
+
+  }, 125);
+}
+
+/**
+ * This function checks for the current image of the hens.
+ */
+function checkForAlternatingHens() {
+  setInterval(function () {
+
+    if(henIsFacingLeft) {
+      let index = hensGraphicIndex % hensGraphicsLeft.length; //Infinite loop
+      currentAlternatingHenImage = hensGraphicsLeft[index];
+      hensGraphicIndex = hensGraphicIndex + 1;
+    }
+    if(henIsFacingRight) {
+      let index = hensGraphicIndex % hensGraphicsRight.length; //Infinite loop
+      currentAlternatingHenImage = hensGraphicsRight[index];
+      hensGraphicIndex = hensGraphicIndex + 1;
+    }
 
   }, 125);
 }
@@ -1337,7 +1404,6 @@ function jump() {
       AUDIO_JUMP.play();
       lastJumpStarted = new Date().getTime();
       document.getElementById('arrow-up').classList.add('arrow-move');
-      startHeight = character_y;
     }
   }
 }
