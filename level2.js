@@ -1,6 +1,9 @@
+/**
+ * This function loads level 2.
+ */
 function startLevel2() {
   character_x = 200;
-  character_energy = 100;
+  character_energy = 300;
   final_boss_energy = 100;
   bg_ground = 0;
   bg_sky = 0;
@@ -25,6 +28,9 @@ function startLevel2() {
 
 }
 
+/**
+ * This function loads level 2.
+ */
 function loadLevel2() {
   gamestart = true;
   document.getElementById('level-description').classList.add('d-none');
@@ -36,10 +42,16 @@ function loadLevel2() {
   AUDIO_FINAL_BOSS.muted = true;
 }
 
+/**
+ * This function creates a list of alternating hens.
+ */
 function createAlternatingHenList() {
 
   alternatingHens = [
-    createAlternatingHen(1950, 212)
+    createAlternatingHen(1950, 1950, 215, 250),
+    createAlternatingHen(2600, 2600, 215, 100),
+    createAlternatingHen(3300, 3300, 215, 100),
+    createAlternatingHen(4950, 4950, 140, 250)
   ];
 
 }
@@ -50,29 +62,34 @@ function createAlternatingHenList() {
  * 
  * @param {integer} position_x - Position on the x-axis.
  */
-function createAlternatingHen(position_x, position_y) {
+function createAlternatingHen(start_position, position_x, position_y, path_length) {
   return {
-    'start_position': position_x,
+    'start_position': start_position,
     'position_x': position_x,
     'position_y': position_y,
+    'path_length': path_length,
     'scale': 0.28,
     'speed': 3,
-    'dead': false
+    'dead': false,
+    'henIsFacingLeft': true,
+    'henIsFacingRight': false,
+    'currentAlternatingHenImage': './img/chicken/hen1.png'
   };
 }
 
+/**
+ * This function creates a list of jump bars.
+ */
 function createJumpBarList() {
   jumpBars = [
-    createJumpBars(440, 300, 100),
-    createJumpBars(570, 250, 100),
-    createJumpBars(700, 200, 200),
     createJumpBars(1700, 275, 300),
-    // createJumpBars(500, 300, 250),
-    // createJumpBars(1500, 300, 250),
-    // createJumpBars(2500, 300, 250),
-    // createJumpBars(3440, 300, 100),
-    // createJumpBars(3570, 250, 100),
-    // createJumpBars(3700, 200, 200)
+
+    createJumpBars(2500, 275, 150),
+    createJumpBars(3200, 275, 150),
+
+    createJumpBars(4460, 300, 100),
+    createJumpBars(4580, 250, 100),
+    createJumpBars(4700, 200, 300)
   ]
 }
 
@@ -83,19 +100,16 @@ function createJumpBarList() {
 function createChickenList2() {
   chickens = [
     createChicken(700),
-    createChicken(750),
     createChicken(800),
-    createChicken(850),
-    createChicken(900),
-    // createChicken(1000),
-    // createChicken(1200),
-    // createChicken(1400),
-    // createChicken(1600),
-    // createChicken(3800),
-    // createChicken(3200),
-    // createChicken(3400),
-    // createChicken(3600),
-    // createChicken(3800)
+    createChicken(1000),
+    createChicken(1400),
+    createChicken(1600),
+    createChicken(3800),
+    createChicken(3400),
+    createChicken(3600),
+    createChicken(3800),
+    createChicken(4200),
+    createChicken(4500)
   ];
 }
 
@@ -105,6 +119,7 @@ function createChickenList2() {
 function createHenList2() {
   hens = [
     createChicken(800),
+    createChicken(2800)
   ];
 }
 
@@ -113,12 +128,6 @@ function createHenList2() {
 */
 function createCoinList2() {
   placedCoins = [
-    placedCoin(650, 0),
-    placedCoin(700, 0),
-    placedCoin(750, 0),
-    placedCoin(800, 0),
-    placedCoin(850, 0),
-
     placedCoin(1650, 50),
     placedCoin(1700, 50),
     placedCoin(1750, 50),
@@ -126,23 +135,22 @@ function createCoinList2() {
     placedCoin(1850, 50),
     placedCoin(1900, 50),
 
-    // placedCoin(1450, 100),
-    // placedCoin(1500, 100),
-    // placedCoin(1550, 100),
-    // placedCoin(1600, 100),
-    // placedCoin(1650, 100),
+    placedCoin(2450, 100),
+    placedCoin(2500, 100),
+    placedCoin(2550, 100),
+    placedCoin(2600, 100),
 
-    // placedCoin(2450, 100),
-    // placedCoin(2500, 100),
-    // placedCoin(2550, 100),
-    // placedCoin(2600, 100),
-    // placedCoin(2650, 100),
+    placedCoin(3150, 100),
+    placedCoin(3200, 100),
+    placedCoin(3250, 100),
+    placedCoin(3300, 100),
 
-    // placedCoin(3650, 0),
-    // placedCoin(3700, 0),
-    // placedCoin(3750, 0),
-    // placedCoin(3800, 0),
-    // placedCoin(3850, 0)
+    placedCoin(4650, 0),
+    placedCoin(4700, 0),
+    placedCoin(4750, 0),
+    placedCoin(4800, 0),
+    placedCoin(4850, 0),
+    placedCoin(4900, 0)
   ];
 }
 

@@ -99,9 +99,6 @@ let level1 = false;
 let level2 = false;
 let jumpBars = [];
 let alternatingHens = [];
-let henIsFacingLeft = true;
-let henIsFacingRight = false;
-let currentAlternatingHenImage = './img/chicken/hen1.png';
 
 let musicIsOn = true;
 let musicIsOff = false;
@@ -146,10 +143,10 @@ function loadGame() {
   checkForJump();
   checkIfHurt();
   checkIfDead();
-  checkForChicken();
-  checkForHens();
-  checkForAlternatingHens();
-  checkForBoss();
+  animateChicken();
+  animateHens();
+  animateAlternatingHens();
+  animateBoss();
   checkBossEnergy();
   checkForBottle();
   checkForCoin();
@@ -157,12 +154,15 @@ function loadGame() {
   listenForKeys();
   calculateChickenPosition();
   calculateHenPosition();
-  calculateAlternatingHenPosition()
+  calculateAlternatingHenPosition();
   checkForCollision();
   checkIfGameIsFinished();
   drawFinalScreen1(); //block level 1!!!
 }
 
+/**
+ * This function checks if the character is falling down. 
+ */
 function checkIsFallingDown() {
 
   setInterval(function () {
@@ -172,8 +172,8 @@ function checkIsFallingDown() {
       let jumpbar_end_x = jumpbar.position_x + jumpbar.length - 50 + bg_ground;
       let jumpbar_index = index + 1;
 
-      if (character_y < 150) {
-        if ((jumpbar_index == currentJumpbar) && (character_x < jumpbar_start_x || character_x > jumpbar_end_x)) {
+      if (isUp) {
+        if ((jumpbar_index == currentJumpbar) && (character_x < jumpbar_start_x - 10 || character_x > jumpbar_end_x - 10)) {
           isUp = false;
           isFallingDown = true;
         }
@@ -199,35 +199,62 @@ function checkForCollision() {
   }, 100);
 }
 
+/**
+ * This function checks if alternating chicken cross the way of the character.
+ */
 function checkForAlternatingHenCollision() {
+
+  let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+
   for (let index = 0; index < alternatingHens.length; index++) {
     let hen = alternatingHens[index];
     let hen_x = hen.position_x + bg_ground;
     let hen_y = hen.position_y;
 
-    console.log('hen y ' + hen_y);
-    console.log('pepe y ' + character_y);
 
-    if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead && character_y > hen_y - 165 - 40 && isFallingDown) {
-      AUDIO_CRACK.play();
-      hen.dead = true;
+    if (characterIsColliding(hen, hen_x, 40) && timePassedSinceJump < 800) {
+      if (character_y > hen_y - 168 - 100 && character_y < hen_y - 168) {
+        henDies(hen);
+      }
     }
-    if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead && character_y > hen_y - 165 - 20) {
+
+    if (characterIsColliding(hen, hen_x, 40) && character_y == hen_y - 168) {
       if (character_energy > 0) {
         if (timePassedSinceHurt > 2 * HURT_TIME) {
-          isHurt = true;
-          AUDIO_HURT.play();
-          lastHurtStarted = new Date().getTime();
-          character_energy -= 10;
+          characterGetsHurt();
         }
       } else {
-        isDead = true;
-        ishurt = false;
-        deadStarted = new Date().getTime();
+        characterDies();
       }
     }
   }
 
+}
+
+function characterDies() {
+  isDead = true;
+  ishurt = false;
+  deadStarted = new Date().getTime();
+}
+
+function characterGetsHurt() {
+  isHurt = true;
+  AUDIO_HURT.play();
+  lastHurtStarted = new Date().getTime();
+  character_energy -= 10;
+}
+
+function henDies(hen) {
+  AUDIO_CRACK.play();
+  hen.dead = true;
+}
+
+function characterIsAboveHen(hen_y, yDifference, fallDistance) {
+  character_y > (hen_y - yDifference - fallDistance)
+}
+
+function characterIsColliding(hen, hen_x, collisionWidth) {
+  return (hen_x - collisionWidth) < character_x && (hen_x + collisionWidth) > character_x && !hen.dead
 }
 
 
@@ -235,59 +262,63 @@ function checkForAlternatingHenCollision() {
  * This function checks for collision between the character and the hens.
  */
 function checkForHenCollision() {
+
+  let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+
   for (let index = 0; index < hens.length; index++) {
     let hen = hens[index];
     let hen_x = hen.position_x + bg_ground;
 
-    if ((hen_x - 40) < character_x && (hen_x + 40) > character_x && !hen.dead && character_y > 110 && isFallingDown) {
-      AUDIO_CRACK.play();
-      hen.dead = true;
-    }
-    if ((hen_x - 50) < character_x && (hen_x + 50) > character_x && !hen.dead && character_y > 130) {
-      if (character_energy > 0) {
-        if (timePassedSinceHurt > 2 * HURT_TIME) {
-          isHurt = true;
-          AUDIO_HURT.play();
-          lastHurtStarted = new Date().getTime();
-          character_energy -= 10;
-        }
-      } else {
-        isDead = true;
-        ishurt = false;
-        deadStarted = new Date().getTime();
+    if (characterIsColliding(hen, hen_x, 40) && timePassedSinceJump < 800) {
+      if (character_y > 100 && character_y < 150) {
+        henDies(hen);
       }
     }
-    if ((hen_x - 200) < character_x && (hen_x + 200) > character_x && !hen.dead) {
+
+    if (characterIsColliding(hen, hen_x, 40) && character_y == 150) {
+      if (character_energy > 0) {
+        if (timePassedSinceHurt > 2 * HURT_TIME) {
+          characterGetsHurt();
+        }
+      } else {
+        characterDies();
+      }
+    }
+    if (henIsAroundCharacter(hen, hen_x, 100)) {
       AUDIO_HEN.play();
 
     }
   }
 }
 
+function henIsAroundCharacter(hen, hen_x, collisionWidth) {
+  return (hen_x - collisionWidth) < character_x && (hen_x + collisionWidth) > character_x && !hen.dead
+}
+
 /**
  * This function checks for collision between the character and the chickens.
  */
 function checkForChickenCollission() {
+
+  let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+
   for (let index = 0; index < chickens.length; index++) {
     let chicken = chickens[index];
     let chicken_x = chicken.position_x + bg_ground;
 
-    if ((chicken_x - 40) < character_x && (chicken_x + 40) > character_x && !chicken.dead && character_y > 110 && isFallingDown) {
-      AUDIO_CRACK.play();
-      chicken.dead = true;
+    if (characterIsColliding(chicken, chicken_x, 40) && timePassedSinceJump < 800) {
+      if (character_y > 100 && character_y < 150) {
+        henDies(chicken);
+      }
     }
-    if ((chicken_x - 50) < character_x && (chicken_x + 50) > character_x && !chicken.dead && character_y > 110) {
+
+    if (characterIsColliding(chicken, chicken_x, 40) && character_y == 150) {
       if (character_energy > 0) {
         if (timePassedSinceHurt > 2 * HURT_TIME) {
-          isHurt = true;
-          AUDIO_HURT.play();
-          lastHurtStarted = new Date().getTime();
-          character_energy -= 10;
+          characterGetsHurt();
         }
       } else {
-        isDead = true;
-        ishurt = false;
-        deadStarted = new Date().getTime();
+        characterDies();
       }
     }
   }
@@ -299,18 +330,14 @@ function checkForChickenCollission() {
 function checkForBossCollision() {
   let boss_x = BOSS_POSITION + bg_ground;
 
+
   if ((boss_x - 80) < character_x && (boss_x + 80) > character_x && character_y > 10) {
     if (character_energy > 0) {
       if (timePassedSinceHurt > 2 * HURT_TIME && !bossIsDead) {
-        isHurt = true;
-        AUDIO_HURT.play();
-        lastHurtStarted = new Date().getTime();
-        character_energy -= 10;
+        characterGetsHurt();
       }
     } else {
-      isDead = true;
-      ishurt = false;
-      deadStarted = new Date().getTime();
+      characterDies();
     }
   }
 }
@@ -420,7 +447,7 @@ function calculateChickenPosition() {
 }
 
 /**
- * This function calculated the position of the hens.
+ * This function calculates the position of the hens.
  */
 function calculateHenPosition() {
 
@@ -437,28 +464,32 @@ function calculateHenPosition() {
 
 }
 
-
+/**
+ * This function calculated the position of the alternating hens.
+ */
 function calculateAlternatingHenPosition() {
   setInterval(function () {
 
     for (let i = 0; i < alternatingHens.length; i++) {
-      let hen = alternatingHens[i];;
+      let hen = alternatingHens[i];
 
-
-      if (hen.position_x < hen.start_position - 250) {
-        henIsFacingLeft = false;
-        henIsFacingRight = true;
-      }
-      if (hen.position_x > hen.start_position) {
-        henIsFacingLeft = true;
-        henIsFacingRight = false;
-      }
+      console.log('2 ' + alternatingHens[1].henIsFacingLeft);
 
       if (!hen.dead) {
-        if (henIsFacingLeft) {
+
+        if (hen.position_x < (hen.start_position - hen.path_length)) {
+          hen.henIsFacingLeft = false;
+          hen.henIsFacingRight = true;
+        }
+        if (hen.position_x > hen.start_position) {
+          hen.henIsFacingLeft = true;
+          hen.henIsFacingRight = false;
+        }
+
+        if (hen.henIsFacingLeft) {
           hen.position_x = hen.position_x - hen.speed;
         }
-        if (henIsFacingRight) {
+        if (hen.henIsFacingRight) {
           hen.position_x = hen.position_x + hen.speed;
         }
 
@@ -725,29 +756,31 @@ function draw() {
 
 }
 
+/**
+ * This draw the alternating hens on the canvas.
+ */
 function drawAlternatingHens() {
 
   for (let i = 0; i < alternatingHens.length; i++) {
     let hen = alternatingHens[i];
-    let image = currentAlternatingHenImage;
+    let image = hen.currentAlternatingHenImage;
 
     if (hen.dead) {
-      if (henIsFacingLeft) {
+      if (hen.henIsFacingLeft) {
         image = 'img/chicken/hen_dead.png';
       }
-      if (henIsFacingRight) {
+      if (hen.henIsFacingRight) {
         image = 'img/chicken/hen_deadR.png';
       }
 
     }
-
-
     addBackgroundobject(image, hen.position_x, bg_ground, hen.position_y, hen.scale, 1);
   }
-
-
 }
 
+/**
+ * This draw the jump bars on the canvas.
+ */
 function drawJumpBars() {
 
   for (let index = 0; index < jumpBars.length; index++) {
@@ -759,6 +792,9 @@ function drawJumpBars() {
 
 }
 
+/**
+ * This creates jump bars.
+ */
 function createJumpBars(x, y, length) {
   return {
     'position_x': x,
@@ -766,6 +802,7 @@ function createJumpBars(x, y, length) {
     'length': length
   }
 }
+
 /**
  * This function draws the chicken boss on the canvas.
  */
@@ -950,9 +987,9 @@ function drawHen() {
 }
 
 /**
- * This function checks for the current image of the chicken.
+ * This function animates the current image of the chicken.
  */
-function checkForChicken() {
+function animateChicken() {
   setInterval(function () {
 
     let index = chickenGraphicIndex % chickenGraphics.length; //Infinte loop
@@ -963,9 +1000,9 @@ function checkForChicken() {
 }
 
 /**
- * This function checks for the current image of the hens.
+ * This function animates the current image of the hens.
  */
-function checkForHens() {
+function animateHens() {
   setInterval(function () {
 
     let index = hensGraphicIndex % hensGraphicsLeft.length; //Infinite loop
@@ -976,29 +1013,34 @@ function checkForHens() {
 }
 
 /**
- * This function checks for the current image of the hens.
+ * This function animates the current image of the alternating hens.
  */
-function checkForAlternatingHens() {
+function animateAlternatingHens() {
+  let index;
+
   setInterval(function () {
 
-    if(henIsFacingLeft) {
-      let index = hensGraphicIndex % hensGraphicsLeft.length; //Infinite loop
-      currentAlternatingHenImage = hensGraphicsLeft[index];
-      hensGraphicIndex = hensGraphicIndex + 1;
-    }
-    if(henIsFacingRight) {
-      let index = hensGraphicIndex % hensGraphicsRight.length; //Infinite loop
-      currentAlternatingHenImage = hensGraphicsRight[index];
-      hensGraphicIndex = hensGraphicIndex + 1;
-    }
+    for (let i = 0; i < alternatingHens.length; i++) {
+      let hen = alternatingHens[i];
 
+      if (hen.henIsFacingLeft) {
+        index = hensGraphicIndex % hensGraphicsLeft.length; //Infinite loop
+        hen.currentAlternatingHenImage = hensGraphicsLeft[index];
+        hensGraphicIndex = hensGraphicIndex + 1;
+      }
+      if (hen.henIsFacingRight) {
+        index = hensGraphicIndex % hensGraphicsRight.length; //Infinite loop
+        hen.currentAlternatingHenImage = hensGraphicsRight[index];
+        hensGraphicIndex = hensGraphicIndex + 1;
+      }
+    }
   }, 125);
 }
 
 /**
- * This function checks for the current image of the chicken boss.
+ * This function animates the current image of the chicken boss.
  */
-function checkForBoss() {
+function animateBoss() {
 
   setInterval(function () {
 
@@ -1161,9 +1203,9 @@ function createChicken(position_x) {
   };
 }
 
-// /**
-//  * This function draws the character.
-//  */
+/**
+ * This function draws the character.
+ */
 function updateCharacter() {
   let base_image = checkBackgroundImageCache(currentCharacterImage);
   let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
@@ -1184,7 +1226,7 @@ function updateCharacter() {
 
     if (isFallingDown) {
       character_y = character_y + 7;
-      if (character_x > jumpbar_start_x && character_x < jumpbar_end_x && character_y < jumpbar_y) {
+      if (characterCollidesJumpbar(jumpbar_start_x, jumpbar_end_x, jumpbar_y)) {
         character_y = jumpbar_y - 28;
         isUp = true;
         isFallingDown = false;
@@ -1199,6 +1241,10 @@ function updateCharacter() {
   }
 
   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.2, base_image.height * 0.2);
+}
+
+function characterCollidesJumpbar(jumpbar_start_x, jumpbar_end_x, jumpbar_y) {
+  return character_x > jumpbar_start_x - 10 && character_x < jumpbar_end_x - 10 && character_y < jumpbar_y
 }
 
 
