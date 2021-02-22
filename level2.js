@@ -3,7 +3,7 @@
  */
 function startLevel2() {
   character_x = 200;
-  character_energy = 300;
+  character_energy = 100;
   final_boss_energy = 100;
   bg_ground = 0;
   bg_sky = 0;
@@ -37,7 +37,7 @@ function loadLevel2() {
   createChickenList2();
   createCoinList2();
   createHenList2();
-  createJumpBarList();
+  createJumpBarList2();
   createAlternatingHenList();
   AUDIO_FINAL_BOSS.muted = true;
 }
@@ -80,7 +80,7 @@ function createAlternatingHen(start_position, position_x, position_y, path_lengt
 /**
  * This function creates a list of jump bars.
  */
-function createJumpBarList() {
+function createJumpBarList2() {
   jumpBars = [
     createJumpBars(1700, 275, 300),
 
@@ -100,9 +100,7 @@ function createJumpBarList() {
 function createChickenList2() {
   chickens = [
     createChicken(700),
-    createChicken(800),
     createChicken(1000),
-    createChicken(1400),
     createChicken(1600),
     createChicken(3800),
     createChicken(3400),
@@ -161,16 +159,16 @@ function drawFinalScreen2() {
 
   document.getElementById('level-description').classList.remove('d-none');
   gamestart = false;
-  level1 = false;
+  level2 = false;
 
   document.getElementById('level-description').innerHTML = `
   <h1>You won!</h1>
-  <button onclick="startLevel2()">Level 3</button>`
+  <button onclick="restart()">Play again</button>`
 
   if (isDead) {
     document.getElementById('level-description').innerHTML = `
  <h1>You lost!</h1>
- <button onclick="restart()">Play again</button>`
+ <button onclick="startLevel2()">Try again</button>`
   }
 
 }

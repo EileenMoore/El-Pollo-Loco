@@ -6,16 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" type="image/x-icon" href="img/icon.png">
-    <!-- <link rel="manifest" href="manifest.json"> -->
     <script src="preload.js"></script>
+    <script src="variables.js"></script>
     <script src="game.js"></script>
-    <script src="level2.js"></script>
+    <script src="draw.js"></script>
     <script src="level1.js"></script>
+    <script src="level2.js"></script>
+
 
     <title>El Pollo Loco</title>
 </head>
 
-<body onload="init(); turnMusicOff(); turnSoundOff()">
+<body onload="init(); muteMusic(); muteSound()">
 
     <h1 class="headline">El Pollo Loco</h1>
 
@@ -28,7 +30,7 @@
         <div id="level-description" class="level-description d-none">
             <h2>LEVEL 1</h2>
             <span>Collect all the coins and kill the chicken boss with the tabasco bottles!</span>
-            <button onclick="loadGame()">OK</button>
+            <button onclick="loadGame(); loadLevel1()">OK</button>
         </div>
 
         <div class="fullscreen-window level-description" id="fullscreen-window">
