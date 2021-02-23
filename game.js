@@ -13,7 +13,6 @@ function loadGame() {
   checkForCollision();
   listenForKeys();
   checkIfGameIsFinished();
-  // drawFinalScreen1(); //block level 1!!!
 }
 
 /**
@@ -1196,4 +1195,21 @@ function checkForScreenOrientation() {
   } else if (orientation === undefined) {
     alert("The orientation API isn't supported in this browser :(");
   }
+}
+
+/**
+ * This function checks which browser is being used.
+ */
+function checkForBrowser() {
+  let f = navigator.userAgent.search("Firefox");
+  let m8 = navigator.userAgent.search("MSIE 8.0");
+  let m9 = navigator.userAgent.search("MSIE 9.0");
+  let s = navigator.userAgent.search("Safari");
+  if (f > -1) {
+    alert('Please use Chrome');
+  } else if (m9 > -1) {
+    alert('Please use Chrome');
+  } else if (m8 > -1) {
+    alert('Please use Chrome');
+  } 
 }
