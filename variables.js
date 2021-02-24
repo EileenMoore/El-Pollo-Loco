@@ -100,6 +100,7 @@ let level1 = false;
 let level2 = false;
 let jumpBars = [];
 let alternatingHens = [];
+let start_height;
 
 let musicIsOn = true;
 let musicIsOff = false;

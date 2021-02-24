@@ -2,6 +2,8 @@
  * This function loads level 2.
  */
 function startLevel2() {
+  isFacingRight = true;
+isFacingLeft = false;
   character_x = 200;
   character_energy = 100;
   final_boss_energy = 100;
@@ -19,7 +21,7 @@ function startLevel2() {
   bossIsDead = true;
   level2 = true;
   BOSS_POSITION = 10000;
-
+  isDead = false;
 
   document.getElementById('level-description').innerHTML = `
   <h2>LEVEL 2</h2>
@@ -163,12 +165,14 @@ function drawFinalScreen2() {
 
   document.getElementById('level-description').innerHTML = `
   <h1>You won!</h1>
-  <button onclick="restart()">Play again</button>`
+  <button onclick="restart()">Play again</button>`;
 
   if (isDead) {
     document.getElementById('level-description').innerHTML = `
  <h1>You lost!</h1>
- <button onclick="startLevel2()">Try again</button>`
+ <button onclick="startLevel2()">Try again</button>`;
   }
+
+  
 
 }

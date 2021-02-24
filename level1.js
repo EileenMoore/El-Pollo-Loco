@@ -121,12 +121,12 @@ function drawFinalScreen1() {
 
     document.getElementById('level-description').innerHTML = `
     <h1>You won!</h1>
-    <button onclick="startLevel2()">Level 2</button>`
+    <button onclick="startLevel2()">Level 2</button>`;
 
     if (isDead) {
         document.getElementById('level-description').innerHTML = `
    <h1>You lost!</h1>
-   <button onclick="restart()">Play again</button>`
+   <button onclick="restart()">Play again</button>`;
     }
 
 }

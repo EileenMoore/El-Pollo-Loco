@@ -314,7 +314,7 @@ function bossIsHitByBottle() {
 function checkIfGameIsFinished() {
   setInterval(function () {
 
-    if (collectedCoins == 20 && bossIsDead) {
+    if (isDead || collectedCoins == 20 && bossIsDead) {
       game_finished = true;
     }
   }, 100);
@@ -411,12 +411,101 @@ function calculateCloudOffset() {
  */
 function animateCharacter() {
   checkForStanding();
+  // moveCharacter();
   checkIsFallingDown();
   checkForSleep();
   checkForRunning();
   checkForJump();
   checkIfHurt();
   checkIfDead();
+}
+
+// function moveCharacter() {
+//   setInterval(function () {
+//     let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
+
+//     characterJumps(timePassedSinceJump);
+
+//     for (let index = 0; index < jumpBars.length; index++) {
+//       let jumpbar = jumpBars[index];
+//       let jumpbar_start_x = jumpbar.position_x - 50 + bg_ground;
+//       let jumpbar_end_x = jumpbar.position_x - 50 + jumpbar.length + bg_ground;
+//       let jumpbar_y = jumpbar.position_y - 200;
+//       characterFallsDown(jumpbar_start_x, jumpbar_end_x, jumpbar_y, index);
+//     }
+//   }, 50);
+// }
+
+/**
+ * This function lets the character fall down.
+ * 
+ * 
+ * @param {integer} jumpbar_start_x - startpoint of the jumpbar on x-axis
+ * @param {integer} jumpbar_end_x - endpoint of the jumpbar on x-axis
+ * @param {integer} jumpbar_y - position of the jumpbar on the y-axis
+ * @param {integer} index - number of jumpbar
+ */
+function characterFallsDown(jumpbar_start_x, jumpbar_end_x, jumpbar_y, index) {
+  if (isFallingDown) {
+    character_y = character_y + 10;
+    if (characterCollidesJumpbar(jumpbar_start_x, jumpbar_end_x, jumpbar_y)) {
+      characterLandsOnJumpbar(jumpbar_y, index);
+    } else if (character_y > 150) {
+      characterFallsOnGround();
+    }
+  }
+}
+
+/**
+ * This function lets the character jump.
+ * 
+ * 
+ * @param {number} timePassedSinceJump - milliseconds that passed since the start of the jump
+ */
+function characterJumps(timePassedSinceJump) {
+  if (isJumpingUp && !isFallingDown) {
+    character_y = character_y - 10;
+    if (timePassedSinceJump > 400) {
+    // if (character_y < start_height - 100) {
+      isJumpingUp = false;
+      isFallingDown = true;
+    }
+  }
+}
+
+/**
+ * This function lets the character fall down after the jump.
+ */
+function characterFallsOnGround() {
+  character_y = 150;
+  currentJumpbar = 0;
+  isFallingDown = false;
+}
+
+/**
+ * This function lets the character land on a jumpbar.
+ * 
+ * 
+ * @param {integer} jumpbar_y - position of the jumpbar on the y-axis
+ * @param {integer} index - number of the jumpbar
+ */
+function characterLandsOnJumpbar(jumpbar_y, index) {
+  character_y = jumpbar_y - 28;
+  isUp = true;
+  isFallingDown = false;
+  currentJumpbar = index + 1;
+}
+
+/**
+ * This function examines if the character collides with a jumpbar.
+ * 
+ * 
+ * @param {*} jumpbar_start_x - startpoint of the jumpbar on x-axis
+ * @param {*} jumpbar_end_x - endpoint of the jumpbar on x-axis
+ * @param {*} jumpbar_y - position of the jumpbar on the y-axis
+ */
+function characterCollidesJumpbar(jumpbar_start_x, jumpbar_end_x, jumpbar_y) {
+  return character_x > jumpbar_start_x - 10 && character_x < jumpbar_end_x - 10 && character_y < jumpbar_y
 }
 
 /**
@@ -563,10 +652,6 @@ function checkIfDead() {
  */
 function bossDying(direction, graphics) {
   if (isDead && direction) {
-
-    setTimeout(function () {
-      game_finished = true;
-    }, DEAD_TIME);
 
     let index = characterGraphicIndex % graphics.length;
     currentCharacterImage = graphics[index];
@@ -955,6 +1040,7 @@ function jump() {
       lastKeyPressed = 0;
       isJumping = true;
       isJumpingUp = true;
+      start_height = character_y;
       AUDIO_JUMP.play();
       lastJumpStarted = new Date().getTime();
       document.getElementById('arrow-up').classList.add('arrow-move');
@@ -1211,5 +1297,5 @@ function checkForBrowser() {
     alert('Please use Chrome');
   } else if (m8 > -1) {
     alert('Please use Chrome');
-  } 
+  }
 }

@@ -2,7 +2,6 @@
  * This function is for drawing on the canvas.
  */
 function draw() {
-
   requestAnimationFrame(draw);
   drawBackground();
   if (game_finished && level1) {
@@ -26,13 +25,9 @@ function drawgame() {
   drawCoins();
   drawInformation();
   drawThrowBottle();
-  if (level1) {
-    drawFinalBoss();
-  }
-  if (level2) {
-    drawJumpBars();
-    drawAlternatingHens();
-  }
+  drawFinalBoss();
+  drawJumpBars();
+  drawAlternatingHens();
 }
 
 /**
@@ -132,8 +127,8 @@ function drawThrowBottle() {
   } else if (isThrowingLeft) {
     thrownBottle_x = 225 - (timePassed * 0.7);
   }
-
   thrownBottel_y = 280 - (timePassed * 0.6 - gravity);
+
   let base_image = checkBackgroundImageCache(currentBottleImage);
   ctx.drawImage(base_image, thrownBottle_x, thrownBottel_y, base_image.width * 0.2, base_image.height * 0.2);
 }
@@ -244,7 +239,7 @@ function drawHen() {
 * This function draws the character.
 */
 function updateCharacter() {
-  let base_image = checkBackgroundImageCache(currentCharacterImage);
+
   let timePassedSinceJump = new Date().getTime() - lastJumpStarted;
 
   characterJumps(timePassedSinceJump);
@@ -256,78 +251,10 @@ function updateCharacter() {
     let jumpbar_y = jumpbar.position_y - 200;
     characterFallsDown(jumpbar_start_x, jumpbar_end_x, jumpbar_y, index);
   }
+  
+  let base_image = checkBackgroundImageCache(currentCharacterImage);
+
   ctx.drawImage(base_image, character_x, character_y, base_image.width * 0.2, base_image.height * 0.2);
-}
-
-/**
- * This function lets the character fall down.
- * 
- * 
- * @param {integer} jumpbar_start_x - startpoint of the jumpbar on x-axis
- * @param {integer} jumpbar_end_x - endpoint of the jumpbar on x-axis
- * @param {integer} jumpbar_y - position of the jumpbar on the y-axis
- * @param {integer} index - number of jumpbar
- */
-function characterFallsDown(jumpbar_start_x, jumpbar_end_x, jumpbar_y, index) {
-  if (isFallingDown) {
-    character_y = character_y + 7;
-    if (characterCollidesJumpbar(jumpbar_start_x, jumpbar_end_x, jumpbar_y)) {
-      characterLandsOnJumpbar(jumpbar_y, index);
-    } else if (character_y > 150) {
-      characterFallsOnGround();
-    }
-  }
-}
-
-/**
- * This function lets the character jump.
- * 
- * 
- * @param {number} timePassedSinceJump - milliseconds that passed since the start of the jump
- */
-function characterJumps(timePassedSinceJump) {
-  if (isJumpingUp && !isFallingDown) {
-    character_y = character_y - 7;
-    if (timePassedSinceJump > 350) {
-      isJumpingUp = false;
-      isFallingDown = true;
-    }
-  }
-}
-
-/**
- * This function lets the character fall down after the jump.
- */
-function characterFallsOnGround() {
-  character_y = 150;
-  currentJumpbar = 0;
-  isFallingDown = false;
-}
-
-/**
- * This function lets the character land on a jumpbar.
- * 
- * 
- * @param {integer} jumpbar_y - position of the jumpbar on the y-axis
- * @param {integer} index - number of the jumpbar
- */
-function characterLandsOnJumpbar(jumpbar_y, index) {
-  character_y = jumpbar_y - 28;
-  isUp = true;
-  isFallingDown = false;
-  currentJumpbar = index + 1;
-}
-
-/**
- * This function examines if the character collides with a jumpbar.
- * 
- * 
- * @param {*} jumpbar_start_x - startpoint of the jumpbar on x-axis
- * @param {*} jumpbar_end_x - endpoint of the jumpbar on x-axis
- * @param {*} jumpbar_y - position of the jumpbar on the y-axis
- */
-function characterCollidesJumpbar(jumpbar_start_x, jumpbar_end_x, jumpbar_y) {
-  return character_x > jumpbar_start_x - 10 && character_x < jumpbar_end_x - 10 && character_y < jumpbar_y
 }
 
 
